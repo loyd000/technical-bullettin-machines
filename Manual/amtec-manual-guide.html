@@ -1,0 +1,1993 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AMTEC Agricultural Machinery Data — User Manual</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300&family=JetBrains+Mono:wght@400;600&display=swap"
+    rel="stylesheet" />
+  <style>
+    /* ── PRINT / PAGE SETUP ───────────────────────────────────── */
+    @page {
+      size: A4 portrait;
+      margin: 0;
+    }
+
+    @media print {
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      .page-break {
+        page-break-after: always;
+        break-after: page;
+      }
+
+      .no-print {
+        display: none !important;
+      }
+
+      body {
+        background: white;
+      }
+
+      /* Keep each .slide together */
+      .slide {
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+    }
+
+    /* ── BASE ─────────────────────────────────────────────────── */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --navy: #1b365d;
+      --navy-deep: #0f2140;
+      --gold: #d97706;
+      --gold-light: #fef3c7;
+      --gold-pale: #fffbeb;
+      --slate: #475569;
+      --muted: #94a3b8;
+      --border: #e2e8f0;
+      --bg: #f8fafc;
+      --white: #ffffff;
+      --red-soft: #fef2f2;
+      --red: #dc2626;
+      --green-soft: #f0fdf4;
+      --green: #16a34a;
+      --code-bg: #f1f5f9;
+
+      /* A4: 210mm × 297mm — rendered at 96dpi = 794px × 1123px */
+      --page-w: 794px;
+      --page-h: 1123px;
+      --pad-h: 52px;
+      --pad-v: 44px;
+    }
+
+    body {
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-size: 10.5pt;
+      line-height: 1.65;
+      color: #1e293b;
+      background: #dde2e8;
+    }
+
+    /* ── SLIDE / PAGE CONTAINER ───────────────────────────────── */
+    .slide {
+      width: var(--page-w);
+      min-height: var(--page-h);
+      background: var(--white);
+      margin: 0 auto 2rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
+    }
+
+    /* side accent bar every page */
+    .slide::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 5px;
+      background: linear-gradient(180deg, var(--navy) 0%, var(--gold) 100%);
+    }
+
+    .slide-inner {
+      padding: var(--pad-v) var(--pad-h) var(--pad-v) calc(var(--pad-h) + 5px);
+    }
+
+    /* ── COVER SLIDE ──────────────────────────────────────────── */
+    .slide-cover {
+      background: var(--navy-deep);
+      color: var(--white);
+    }
+
+    .slide-cover::before {
+      display: none;
+    }
+
+    .cover-bg {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .cover-bg-circle {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.06;
+    }
+
+    .cover-bg-circle-1 {
+      width: 520px;
+      height: 520px;
+      background: var(--gold);
+      top: -160px;
+      right: -160px;
+    }
+
+    .cover-bg-circle-2 {
+      width: 300px;
+      height: 300px;
+      background: var(--white);
+      bottom: -80px;
+      left: 30px;
+    }
+
+    .cover-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, var(--gold) 0%, #f59e0b 50%, var(--gold) 100%);
+    }
+
+    .cover-inner {
+      position: relative;
+      z-index: 2;
+      padding: 64px 52px 52px;
+      display: flex;
+      flex-direction: column;
+      height: var(--page-h);
+    }
+
+    .cover-logo-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 60px;
+    }
+
+    .cover-logo-box {
+      width: 44px;
+      height: 44px;
+      background: var(--gold);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cover-logo-box svg {
+      width: 26px;
+      height: 26px;
+      color: white;
+    }
+
+    .cover-org {
+      font-family: 'Source Serif 4', serif;
+      font-size: 8.5pt;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.65);
+    }
+
+    .cover-eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8pt;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 18px;
+    }
+
+    .cover-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 38pt;
+      font-weight: 900;
+      line-height: 1.05;
+      color: var(--white);
+      margin-bottom: 10px;
+    }
+
+    .cover-title span {
+      color: var(--gold);
+    }
+
+    .cover-subtitle {
+      font-size: 13pt;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.72);
+      max-width: 420px;
+      line-height: 1.55;
+      margin-bottom: 48px;
+    }
+
+    .cover-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: auto;
+    }
+
+    .cover-meta-item {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+
+    .cover-meta-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 7pt;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 4px;
+    }
+
+    .cover-meta-value {
+      font-size: 9.5pt;
+      color: rgba(255, 255, 255, 0.88);
+      font-weight: 600;
+    }
+
+    .cover-footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.14);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 8pt;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    /* ── PAGE HEADER (non-cover) ──────────────────────────────── */
+    .page-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding-bottom: 14px;
+      margin-bottom: 22px;
+      border-bottom: 1.5px solid var(--border);
+    }
+
+    .page-header-left {}
+
+    .page-section-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 7pt;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .page-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 20pt;
+      font-weight: 700;
+      color: var(--navy);
+      line-height: 1.1;
+    }
+
+    .page-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8pt;
+      color: var(--muted);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 3px 8px;
+      white-space: nowrap;
+    }
+
+    /* ── PAGE FOOTER ──────────────────────────────────────────── */
+    .page-footer {
+      position: absolute;
+      bottom: 0;
+      left: 5px;
+      right: 0;
+      padding: 10px 52px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 7pt;
+      color: var(--muted);
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .footer-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--gold);
+      display: inline-block;
+    }
+
+    /* ── SCREENSHOT PLACEHOLDER ───────────────────────────────── */
+    .screenshot {
+      width: 100%;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .screenshot-bar {
+      background: #e2e8f0;
+      padding: 7px 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .screenshot-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+    }
+
+    .screenshot-dot-r {
+      background: #fc5c57;
+    }
+
+    .screenshot-dot-y {
+      background: #febc2e;
+    }
+
+    .screenshot-dot-g {
+      background: #28c840;
+    }
+
+    .screenshot-url {
+      flex: 1;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 7.5pt;
+      color: var(--slate);
+      margin: 0 8px;
+    }
+
+    .screenshot-body {
+      /* SWAP IN YOUR REAL SCREENSHOT HERE: just set src on the <img> inside */
+      min-height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #f8fafc 0%, #eef2f7 100%);
+      position: relative;
+    }
+
+    .screenshot-body img {
+      width: 100%;
+      display: block;
+      object-fit: cover;
+    }
+
+    /* Placeholder shown when no img src is set */
+    .screenshot-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      padding: 32px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .screenshot-placeholder svg {
+      width: 40px;
+      height: 40px;
+      opacity: 0.4;
+    }
+
+    .screenshot-placeholder-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8pt;
+      letter-spacing: 0.06em;
+      font-style: italic;
+    }
+
+    /* ── CALLOUT BOXES ────────────────────────────────────────── */
+    .callout {
+      border-radius: 8px;
+      padding: 13px 16px;
+      margin: 12px 0;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      font-size: 9.5pt;
+    }
+
+    .callout-icon {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10pt;
+      margin-top: 1px;
+    }
+
+    .callout-info {
+      background: #eff6ff;
+      border-left: 3px solid #3b82f6;
+    }
+
+    .callout-info .callout-icon {
+      background: #dbeafe;
+      color: #2563eb;
+    }
+
+    .callout-tip {
+      background: var(--gold-pale);
+      border-left: 3px solid var(--gold);
+    }
+
+    .callout-tip .callout-icon {
+      background: var(--gold-light);
+      color: var(--gold);
+    }
+
+    .callout-warn {
+      background: var(--red-soft);
+      border-left: 3px solid var(--red);
+    }
+
+    .callout-warn .callout-icon {
+      background: #fee2e2;
+      color: var(--red);
+    }
+
+    .callout-success {
+      background: var(--green-soft);
+      border-left: 3px solid var(--green);
+    }
+
+    .callout-success .callout-icon {
+      background: #dcfce7;
+      color: var(--green);
+    }
+
+    .callout-body strong {
+      font-weight: 600;
+    }
+
+    /* ── STEP CARDS ───────────────────────────────────────────── */
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .step {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    .step-num {
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--navy);
+      color: white;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9pt;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+    }
+
+    .step-body {
+      flex: 1;
+    }
+
+    .step-title {
+      font-weight: 600;
+      color: var(--navy);
+      font-size: 10pt;
+      margin-bottom: 2px;
+    }
+
+    .step-desc {
+      font-size: 9.5pt;
+      color: var(--slate);
+      line-height: 1.55;
+    }
+
+    /* ── FEATURE CARDS ────────────────────────────────────────── */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin: 12px 0;
+    }
+
+    .feature-card {
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      background: var(--bg);
+    }
+
+    .feature-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .feature-icon {
+      width: 30px;
+      height: 30px;
+      background: var(--gold-light);
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .feature-title {
+      font-weight: 700;
+      color: var(--navy);
+      font-size: 9.5pt;
+    }
+
+    .feature-desc {
+      font-size: 9pt;
+      color: var(--slate);
+      line-height: 1.5;
+    }
+
+    /* ── TABLE OF CONTENTS ────────────────────────────────────── */
+    .toc-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .toc-section {
+      margin-bottom: 6px;
+    }
+
+    .toc-item {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      transition: background 0.15s;
+    }
+
+    .toc-item:hover {
+      background: var(--bg);
+    }
+
+    .toc-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8pt;
+      color: var(--gold);
+      font-weight: 600;
+      min-width: 24px;
+    }
+
+    .toc-label {
+      flex: 1;
+      font-size: 10pt;
+      color: var(--navy);
+      font-weight: 600;
+    }
+
+    .toc-dots {
+      flex: 1;
+      border-bottom: 1px dotted var(--muted);
+      margin: 0 8px;
+      min-width: 40px;
+    }
+
+    .toc-page {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8.5pt;
+      color: var(--slate);
+    }
+
+    .toc-sub {
+      padding-left: 36px;
+      font-size: 9pt;
+      color: var(--slate);
+    }
+
+    /* ── INLINE CODE ──────────────────────────────────────────── */
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8.5pt;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1px 5px;
+      color: var(--navy);
+    }
+
+    /* ── LABEL / BADGE ────────────────────────────────────────── */
+    .badge {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 7.5pt;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 4px;
+      vertical-align: middle;
+    }
+
+    .badge-navy {
+      background: var(--navy);
+      color: white;
+    }
+
+    .badge-gold {
+      background: var(--gold-light);
+      color: #92400e;
+    }
+
+    .badge-blue {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .badge-green {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    /* ── UTILITIES ────────────────────────────────────────────── */
+    .mt-sm {
+      margin-top: 10px;
+    }
+
+    .mt-md {
+      margin-top: 18px;
+    }
+
+    .mt-lg {
+      margin-top: 26px;
+    }
+
+    .mb-sm {
+      margin-bottom: 10px;
+    }
+
+    .mb-md {
+      margin-bottom: 18px;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .three-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 16px 0;
+    }
+
+    p {
+      margin-bottom: 8px;
+    }
+
+    h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 12.5pt;
+      color: var(--navy);
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+
+    h4 {
+      font-family: 'Source Serif 4', serif;
+      font-size: 10pt;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 6px;
+    }
+
+    ul,
+    ol {
+      padding-left: 18px;
+      margin-bottom: 10px;
+    }
+
+    li {
+      margin-bottom: 4px;
+      font-size: 9.5pt;
+    }
+
+    strong {
+      font-weight: 600;
+    }
+
+    /* annotation callout inline */
+    .annotation {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--gold-pale);
+      border: 1px solid #fcd34d;
+      border-radius: 4px;
+      padding: 1px 7px;
+      font-size: 8.5pt;
+      color: #92400e;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .divider-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 14px 0;
+      color: var(--muted);
+      font-size: 8.5pt;
+      font-family: 'JetBrains Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .divider-row::before,
+    .divider-row::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── PRINT ONLY SPACING ───────────────────────────────────── */
+    @media screen {
+      body {
+        padding: 2rem 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════
+     SLIDE 1 — COVER
+══════════════════════════════════════════════════════════ -->
+  <div class="slide slide-cover page-break">
+    <div class="cover-bg">
+      <div class="cover-bg-circle cover-bg-circle-1"></div>
+      <div class="cover-bg-circle cover-bg-circle-2"></div>
+    </div>
+    <div class="cover-bar"></div>
+
+    <div class="cover-inner">
+      <div class="cover-logo-row">
+        <div class="cover-logo-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5z" />
+            <path d="M2 17l10 5 10-5" />
+            <path d="M2 12l10 5 10-5" />
+          </svg>
+        </div>
+        <div class="cover-org">AMTEC — Agricultural Machinery Testing and Evaluation Center</div>
+      </div>
+
+      <div class="cover-eyebrow">// User Manual &nbsp;&nbsp;·&nbsp;&nbsp; Version 1.0</div>
+
+      <div class="cover-title">
+        Agricultural<br />
+        Machinery<br />
+        <span>Data Guide</span>
+      </div>
+
+      <div class="cover-subtitle">
+        A step-by-step walkthrough of the Machine Catalogue system — browsing categories, reading specifications,
+        comparing units, and printing bulletins.
+      </div>
+
+      <div class="cover-meta-grid">
+        <div class="cover-meta-item">
+          <div class="cover-meta-label">Platform</div>
+          <div class="cover-meta-value">WordPress Plugin</div>
+        </div>
+        <div class="cover-meta-item">
+          <div class="cover-meta-label">Data Source</div>
+          <div class="cover-meta-value">Google Sheets (Live)</div>
+        </div>
+        <div class="cover-meta-item">
+          <div class="cover-meta-label">Shortcode</div>
+          <div class="cover-meta-value">[tech_bulletin_machines]</div>
+        </div>
+      </div>
+
+      <div class="cover-footer">
+        <span>University of the Philippines Los Baños · College of Engineering and Agro-Industrial Technology</span>
+        <span>AMTEC · UPLB</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+     SLIDE 2 — TABLE OF CONTENTS
+══════════════════════════════════════════════════════════ -->
+  <div class="slide page-break">
+    <div class="slide-inner" style="padding-bottom: 60px;">
+
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-section-tag">// Contents</div>
+          <div class="page-title">Table of Contents</div>
+        </div>
+        <div class="page-num">Page 2</div>
+      </div>
+
+      <ul class="toc-list">
+        <li class="toc-section">
+          <div class="toc-item">
+            <span class="toc-num">01</span>
+            <span class="toc-label">System Overview</span>
+            <span class="toc-dots"></span>
+            <span class="toc-page">3</span>
+          </div>
+        </li>
+        <li class="toc-section">
+          <div class="toc-item">
+            <span class="toc-num">02</span>
+            <span class="toc-label">Home Page — Machine Categories</span>
+            <span class="toc-dots"></span>
+            <span class="toc-page">4</span>
+          </div>
+        </li>
+        <li class="toc-section">
+          <div class="toc-item">
+            <span class="toc-num">03</span>
+            <span class="toc-label">Browsing Machine Specifications</span>
+            <span class="toc-dots"></span>
+            <span class="toc-page">5</span>
+          </div>
+          <div class="toc-item toc-sub">
+            <span class="toc-num" style="color:var(--muted);">3.1</span>
+            <span>Machine List Panel</span>
+            <span class="toc-dots"></span>
+            <span class="toc-page">5</span>
+          </div>
+          <div class="toc-item toc-sub">
+            <span class="toc-num" style="color:var(--muted);">3.2</span>
+            <span>Searching and Filtering</span>
+            <span class="toc-dots"></span>
+            <span class="toc-page">6</span>
+          </div>
+          <div class="toc-item toc-sub">
+            <span class="toc-num" style="color:var(--muted);">3.3</span>
+            <span>Expanding Detailed Specifications</span>
+            <span class="toc-dots"></span>
+            <span class="toc-page">6</span>
+          </div>
+        </li>
+        <li class="toc-section">
+          <div class="toc-item">
+            <span class="toc-num">04</span>
+            <span class="toc-label">Comparing Two Machines</span>
+            <span class="toc-dots"></span>
+            <span class="toc-page">7</span>
+          </div>
+          <div class="toc-item toc-sub">
+            <span class="toc-num" style="color:var(--muted);">4.1</span>
+            <span>Setting Up a Comparison</span>
+            <span class="toc-dots"></span>
+            <span class="toc-page">7</span>
+          </div>
+          <div class="toc-item toc-sub">
+            <span class="toc-num" style="color:var(--muted);">4.2</span>
+            <span>Differences-Only View</span>
+            <span class="toc-dots"></span>
+            <span class="toc-page">7</span>
+          </div>
+          <div class="toc-item toc-sub">
+            <span class="toc-num" style="color:var(--muted);">4.3</span>
+            <span>Sharing & Exporting Comparisons</span>
+            <span class="toc-dots"></span>
+            <span class="toc-page">8</span>
+          </div>
+        </li>
+        <li class="toc-section">
+          <div class="toc-item">
+            <span class="toc-num">05</span>
+            <span class="toc-label">Printing a Machine Bulletin</span>
+            <span class="toc-dots"></span>
+            <span class="toc-page">9</span>
+          </div>
+        </li>
+        <li class="toc-section">
+          <div class="toc-item">
+            <span class="toc-num">06</span>
+            <span class="toc-label">Refreshing Data</span>
+            <span class="toc-dots"></span>
+            <span class="toc-page">10</span>
+          </div>
+        </li>
+        <li class="toc-section">
+          <div class="toc-item">
+            <span class="toc-num">07</span>
+            <span class="toc-label">Admin — Managing the Google Sheet</span>
+            <span class="toc-dots"></span>
+            <span class="toc-page">11</span>
+          </div>
+        </li>
+        <li class="toc-section">
+          <div class="toc-item">
+            <span class="toc-num">08</span>
+            <span class="toc-label">Troubleshooting</span>
+            <span class="toc-dots"></span>
+            <span class="toc-page">12</span>
+          </div>
+        </li>
+      </ul>
+
+      <div class="mt-lg">
+        <div class="callout callout-info">
+          <div class="callout-icon">ℹ</div>
+          <div class="callout-body">
+            This guide covers the <strong>end-user</strong> view of the system. For technical installation and plugin
+            configuration, refer to the separate Developer Setup document. The shortcode
+            <code>[tech_bulletin_machines]</code> must be placed on a WordPress page before any of the following
+            applies.
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="page-footer">
+      <div class="footer-logo"><span class="footer-dot"></span> AMTEC User Manual</div>
+      <div>Agricultural Machinery Data · v1.0</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+     SLIDE 3 — SYSTEM OVERVIEW
+══════════════════════════════════════════════════════════ -->
+  <div class="slide page-break">
+    <div class="slide-inner" style="padding-bottom: 60px;">
+
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-section-tag">// 01 — System Overview</div>
+          <div class="page-title">What Is This System?</div>
+        </div>
+        <div class="page-num">Page 3</div>
+      </div>
+
+      <p>The <strong>AMTEC Agricultural Machinery Data</strong> system is an interactive web catalogue that lets users
+        browse, search, and compare the technical specifications of agricultural machines tested by AMTEC. Data is
+        pulled live from a published Google Sheets document, so no database configuration is required — updating the
+        sheet is enough to update the website.</p>
+
+      <div class="mt-md">
+        <div class="feature-grid">
+          <div class="feature-card">
+            <div class="feature-card-header">
+              <div class="feature-icon">🗂️</div>
+              <div class="feature-title">Category Browser</div>
+            </div>
+            <div class="feature-desc">Machines are grouped into categories (e.g. Four-Wheel Tractor, Hammer Mill). Each
+              category has its own sheet tab.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-card-header">
+              <div class="feature-icon">🔍</div>
+              <div class="feature-title">Search & Filter</div>
+            </div>
+            <div class="feature-desc">Full-text search across all spec fields. Filter by brand. Results update live as
+              you type.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-card-header">
+              <div class="feature-icon">⚖️</div>
+              <div class="feature-title">Side-by-Side Compare</div>
+            </div>
+            <div class="feature-desc">Select any two machines from the same category to compare all specs in a table.
+              Highlight only the rows that differ.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-card-header">
+              <div class="feature-icon">🖨️</div>
+              <div class="feature-title">Print Bulletin</div>
+            </div>
+            <div class="feature-desc">One-click printable technical bulletin with AMTEC/UPLB header, machine photo, and
+              full spec table.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-card-header">
+              <div class="feature-icon">🔗</div>
+              <div class="feature-title">Shareable Links</div>
+            </div>
+            <div class="feature-desc">Deep-link directly to a category or a specific machine comparison. The URL updates
+              as you navigate.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-card-header">
+              <div class="feature-icon">📥</div>
+              <div class="feature-title">CSV Export</div>
+            </div>
+            <div class="feature-desc">Download any comparison as a spreadsheet-ready CSV file for offline analysis or
+              reporting.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider-row">Data Flow</div>
+
+      <div class="three-col mt-sm">
+        <div
+          style="text-align:center; padding: 14px; background: var(--bg); border-radius: 8px; border: 1.5px solid var(--border);">
+          <div style="font-size: 20px; margin-bottom: 6px;">📊</div>
+          <div style="font-size: 9pt; font-weight: 700; color: var(--navy); margin-bottom: 4px;">Google Sheets</div>
+          <div style="font-size: 8.5pt; color: var(--slate);">Admin edits the sheet. Data is published as a public CSV
+            feed.</div>
+        </div>
+        <div
+          style="text-align:center; padding: 14px; background: var(--bg); border-radius: 8px; border: 1.5px solid var(--border);">
+          <div style="font-size: 20px; margin-bottom: 6px;">⚙️</div>
+          <div style="font-size: 9pt; font-weight: 700; color: var(--navy); margin-bottom: 4px;">WordPress Plugin</div>
+          <div style="font-size: 8.5pt; color: var(--slate);">Plugin fetches CSV, parses it in the browser, and renders
+            the UI.</div>
+        </div>
+        <div
+          style="text-align:center; padding: 14px; background: var(--bg); border-radius: 8px; border: 1.5px solid var(--border);">
+          <div style="font-size: 20px; margin-bottom: 6px;">👁️</div>
+          <div style="font-size: 9pt; font-weight: 700; color: var(--navy); margin-bottom: 4px;">Visitor / End User
+          </div>
+          <div style="font-size: 8.5pt; color: var(--slate);">Browses, searches, compares, and prints — no login
+            required.</div>
+        </div>
+      </div>
+
+      <div class="callout callout-tip mt-md">
+        <div class="callout-icon">💡</div>
+        <div class="callout-body"><strong>Tip:</strong> Data is cached for 5 minutes in the browser. If you have just
+          updated the Google Sheet, click the <strong>↺ Refresh</strong> button on the category page to pull the latest
+          data immediately.</div>
+      </div>
+
+    </div>
+    <div class="page-footer">
+      <div class="footer-logo"><span class="footer-dot"></span> AMTEC User Manual</div>
+      <div>Agricultural Machinery Data · v1.0</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+     SLIDE 4 — HOME PAGE / CATEGORIES
+══════════════════════════════════════════════════════════ -->
+  <div class="slide page-break">
+    <div class="slide-inner" style="padding-bottom: 60px;">
+
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-section-tag">// 02 — Home Page</div>
+          <div class="page-title">Machine Categories</div>
+        </div>
+        <div class="page-num">Page 4</div>
+      </div>
+
+      <p>When you open the page, you see the <strong>Home View</strong> — a grid of category cards, one for each type of
+        agricultural machinery. Each card shows a photo (if set in the sheet) and the category name.</p>
+
+      <!-- Screenshot placeholder -->
+      <div class="screenshot mb-md mt-sm">
+        <div class="screenshot-bar">
+          <div class="screenshot-dot screenshot-dot-r"></div>
+          <div class="screenshot-dot screenshot-dot-y"></div>
+          <div class="screenshot-dot screenshot-dot-g"></div>
+          <div class="screenshot-url">amtec.uplb.edu.ph/machinery-data/</div>
+        </div>
+        <div class="screenshot-body" style="min-height: 220px;">
+          <img src="screenshots/home-categories.png" />
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div>
+          <h4>What you see</h4>
+          <ul>
+            <li><strong>Category photo</strong> — pulled from the <code>photo_url</code> column of the Categories sheet.
+              If empty, a placeholder icon is shown.</li>
+            <li><strong>Category label</strong> — the machine type name (e.g. "Four-Wheel Tractor").</li>
+            <li><strong>Arrow →</strong> — animates on hover to indicate the card is clickable.</li>
+          </ul>
+        </div>
+        <div>
+          <h4>How to navigate</h4>
+          <div class="steps">
+            <div class="step">
+              <div class="step-num">1</div>
+              <div class="step-body">
+                <div class="step-title">Click a category card</div>
+                <div class="step-desc">The URL updates to <code>#category=four-wheel-tractor</code> and the category
+                  view loads.</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div class="step-body">
+                <div class="step-title">Go back</div>
+                <div class="step-desc">Click <strong>← All Categories</strong> (top-left) to return to the category grid
+                  at any time.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="rule" />
+
+      <div class="callout callout-info">
+        <div class="callout-icon">ℹ</div>
+        <div class="callout-body">
+          <strong>Deep links work!</strong> You can bookmark or share a URL with
+          <code>#category=four-wheel-tractor</code> appended to take someone directly to a specific category without
+          needing to click through the home page.
+        </div>
+      </div>
+
+    </div>
+    <div class="page-footer">
+      <div class="footer-logo"><span class="footer-dot"></span> AMTEC User Manual</div>
+      <div>Agricultural Machinery Data · v1.0</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+     SLIDE 5 — MACHINE LIST
+══════════════════════════════════════════════════════════ -->
+  <div class="slide page-break">
+    <div class="slide-inner" style="padding-bottom: 60px;">
+
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-section-tag">// 03 — Browsing Specifications</div>
+          <div class="page-title">The Machine List</div>
+        </div>
+        <div class="page-num">Page 5</div>
+      </div>
+
+      <p>After selecting a category, you land on the <strong>Category View</strong>. The <span
+          class="badge badge-navy">Machine List</span> tab is active by default, showing a card for every machine in the
+        sheet.</p>
+
+      <!-- Screenshot placeholder -->
+      <div class="screenshot mb-md mt-sm">
+        <div class="screenshot-bar">
+          <div class="screenshot-dot screenshot-dot-r"></div>
+          <div class="screenshot-dot screenshot-dot-y"></div>
+          <div class="screenshot-dot screenshot-dot-g"></div>
+          <div class="screenshot-url">amtec.uplb.edu.ph/machinery-data/#category=four-wheel-tractor</div>
+        </div>
+        <div class="screenshot-body" style="min-height: 240px;">
+          <img src="screenshots/machine-list.png" />
+        </div>
+      </div>
+
+      <h4>Anatomy of a Machine Card</h4>
+      <div class="two-col mt-sm">
+        <ul>
+          <li><strong>Photo</strong> — loaded from the <code>photo_url</code> spec row. Shows a placeholder icon if
+            missing.</li>
+          <li><strong>Brand &amp; Model</strong> — the bold heading at the top of the card.</li>
+          <li><strong>Type</strong> — the machine's category type (e.g. "Two-Wheel Drive").</li>
+        </ul>
+        <ul>
+          <li><strong>Test Requested By</strong> — shown in amber below the type.</li>
+          <li><strong>Show detailed specifications</strong> — expands the full spec table (see next section).</li>
+          <li><strong>Print</strong> — opens a printable one-page bulletin (see §05).</li>
+        </ul>
+      </div>
+
+      <div class="callout callout-tip mt-sm">
+        <div class="callout-icon">💡</div>
+        <div class="callout-body">The item count at the top right (e.g. <strong>12 items</strong>) updates live when you
+          apply search or brand filters. Use it to confirm your filter is working.</div>
+      </div>
+
+    </div>
+    <div class="page-footer">
+      <div class="footer-logo"><span class="footer-dot"></span> AMTEC User Manual</div>
+      <div>Agricultural Machinery Data · v1.0</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+     SLIDE 6 — SEARCH, FILTER, EXPAND
+══════════════════════════════════════════════════════════ -->
+  <div class="slide page-break">
+    <div class="slide-inner" style="padding-bottom: 60px;">
+
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-section-tag">// 03.2 &amp; 03.3 — Search, Filter &amp; Expand</div>
+          <div class="page-title">Finding &amp; Reading Specs</div>
+        </div>
+        <div class="page-num">Page 6</div>
+      </div>
+
+      <div class="two-col">
+        <div>
+          <h3>Searching Machines</h3>
+          <!-- Screenshot placeholder -->
+          <div class="screenshot mb-sm">
+            <div class="screenshot-bar">
+              <div class="screenshot-dot screenshot-dot-r"></div>
+              <div class="screenshot-dot screenshot-dot-y"></div>
+              <div class="screenshot-dot screenshot-dot-g"></div>
+              <div class="screenshot-url">Search box</div>
+            </div>
+            <div class="screenshot-body" style="min-height: 100px;">
+              <img src="screenshots/search-box.png" />
+            </div>
+          </div>
+          <div class="steps">
+            <div class="step">
+              <div class="step-num">1</div>
+              <div class="step-body">
+                <div class="step-title">Type in the search box</div>
+                <div class="step-desc">Searches name, brand, model, category, and every spec value. Results narrow as
+                  you type (200ms debounce).</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div class="step-body">
+                <div class="step-title">Expand a card while searching</div>
+                <div class="step-desc">Matched text is <mark
+                    style="background:#fde68a;color:#92400e;padding:0 2px;border-radius:2px;">highlighted in
+                    yellow</mark> inside the spec table.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h3>Filtering by Brand</h3>
+          <!-- Screenshot placeholder -->
+          <div class="screenshot mb-sm">
+            <div class="screenshot-bar">
+              <div class="screenshot-dot screenshot-dot-r"></div>
+              <div class="screenshot-dot screenshot-dot-y"></div>
+              <div class="screenshot-dot screenshot-dot-g"></div>
+              <div class="screenshot-url">Brand filter</div>
+            </div>
+            <div class="screenshot-body" style="min-height: 100px;">
+              <img src="screenshots/brand-filter.png" />
+            </div>
+          </div>
+          <p style="font-size:9.5pt;">Use the <strong>Filter by brand</strong> dropdown to show only machines from one
+            manufacturer. Combine it with the keyword search to narrow results further. Select <em>All brands</em> to
+            remove the filter.</p>
+        </div>
+      </div>
+
+      <hr class="rule" />
+
+      <h3>Expanding Detailed Specifications</h3>
+      <div class="two-col mt-sm">
+        <div>
+          <!-- Screenshot placeholder -->
+          <div class="screenshot">
+            <div class="screenshot-bar">
+              <div class="screenshot-dot screenshot-dot-r"></div>
+              <div class="screenshot-dot screenshot-dot-y"></div>
+              <div class="screenshot-dot screenshot-dot-g"></div>
+              <div class="screenshot-url">Spec table (expanded)</div>
+            </div>
+            <div class="screenshot-body" style="min-height: 130px;">
+              <img src="screenshots/spec-expanded.png" />
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="steps">
+            <div class="step">
+              <div class="step-num">1</div>
+              <div class="step-body">
+                <div class="step-title">Click "Show detailed specifications"</div>
+                <div class="step-desc">The full spec table slides open below the card. Specs are grouped by section
+                  (e.g. Engine, Transmission, Dimensions).</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div class="step-body">
+                <div class="step-title">Read section headers</div>
+                <div class="step-desc">Amber section banners (e.g. <span class="badge badge-gold">ENGINE
+                    SPECIFICATIONS</span>) group related rows.</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">3</div>
+              <div class="step-body">
+                <div class="step-title">Click again to collapse</div>
+                <div class="step-desc">The button label toggles to "Hide detailed specifications".</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="page-footer">
+      <div class="footer-logo"><span class="footer-dot"></span> AMTEC User Manual</div>
+      <div>Agricultural Machinery Data · v1.0</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+     SLIDE 7.1 — COMPARING MACHINES
+══════════════════════════════════════════════════════════ -->
+  <div class="slide page-break">
+    <div class="slide-inner" style="padding-bottom: 60px;">
+
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-section-tag">// 04 — Compare Machines</div>
+          <div class="page-title">Side-by-Side Comparison</div>
+        </div>
+        <div class="page-num">Page 7</div>
+      </div>
+
+      <p>The <span class="badge badge-navy">Compare Machines</span> tab lets you place two machines from the same
+        category next to each other and compare every specification row by row.</p>
+
+      <!-- Screenshot placeholder -->
+      <div class="screenshot mb-md mt-sm">
+        <div class="screenshot-bar">
+          <div class="screenshot-dot screenshot-dot-r"></div>
+          <div class="screenshot-dot screenshot-dot-y"></div>
+          <div class="screenshot-dot screenshot-dot-g"></div>
+          <div class="screenshot-url">Compare Machines tab</div>
+        </div>
+        <div class="screenshot-body" style="min-height: 230px;">
+          <img src="screenshots/compare-panel.png" />
+        </div>
+      </div>
+
+      <h4>Setting Up a Comparison</h4>
+      <div class="steps mt-sm">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title">Click the "Compare Machines" tab</div>
+            <div class="step-desc">The first two machines in the category are pre-selected automatically. Machine photos
+              appear side-by-side at the top.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-title">Choose Machine A and Machine B</div>
+            <div class="step-desc">Use the two dropdowns to select any two different machines. The comparison table
+              updates instantly.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <div class="step-title">Scroll through the spec table</div>
+            <div class="step-desc">All specification rows appear in the same order as the source sheet. Section headers
+              divide related groups of specs.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="page-footer">
+      <div class="footer-logo"><span class="footer-dot"></span> AMTEC User Manual</div>
+      <div>Agricultural Machinery Data · v1.0</div>
+    </div>
+  </div>
+  <!-- ═══════════════════════════════════════════════════════
+     SLIDE 7.2 — COMPARING MACHINES
+══════════════════════════════════════════════════════════ -->
+  <div class="slide page-break">
+    <div class="slide-inner" style="padding-bottom: 60px;">
+
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-section-tag">// 04 — Compare Machines</div>
+          <div class="page-title">Side-by-Side Comparison</div>
+        </div>
+        <div class="page-num">Page 7</div>
+      </div>
+      <h4>Differences-Only View</h4>
+
+      <div>
+        <!-- Screenshot placeholder -->
+        <div class="screenshot">
+          <div class="screenshot-bar">
+            <div class="screenshot-dot screenshot-dot-r"></div>
+            <div class="screenshot-dot screenshot-dot-y"></div>
+            <div class="screenshot-dot screenshot-dot-g"></div>
+            <div class="screenshot-url">Checkbox — differences only</div>
+          </div>
+          <div class="screenshot-body" style="min-height: 100px;">
+            <img src="screenshots/differences-only.png" />
+          </div>
+        </div>
+      </div>
+      <div>
+        <p style="font-size:9.5pt;">Tick <strong>"Show differences only"</strong> to hide rows where both machines
+          have identical values. Rows that differ are highlighted in <span
+            style="background:#fff1f2;border:1px solid #fecdd3;border-radius:3px;padding:1px 5px;font-size:8.5pt;">light
+            red</span>.</p>
+        <div class="callout callout-tip" style="margin-top:10px;">
+          <div class="callout-icon">💡</div>
+          <div class="callout-body" style="font-size:8.5pt;">If both machines are identical, the table shows the
+            message <em>"These two machines have identical specifications."</em></div>
+        </div>
+      </div>
+
+
+    </div>
+    <div class="page-footer">
+      <div class="footer-logo"><span class="footer-dot"></span> AMTEC User Manual</div>
+      <div>Agricultural Machinery Data · v1.0</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+     SLIDE 8 — SHARE & EXPORT
+══════════════════════════════════════════════════════════ -->
+  <div class="slide page-break">
+    <div class="slide-inner" style="padding-bottom: 60px;">
+
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-section-tag">// 04.3 — Share &amp; Export</div>
+          <div class="page-title">Sharing &amp; Exporting Comparisons</div>
+        </div>
+        <div class="page-num">Page 8</div>
+      </div>
+
+      <div class="two-col">
+
+        <div>
+          <h3>Copy Shareable Link</h3>
+          <!-- Screenshot placeholder -->
+          <div class="screenshot mb-sm">
+            <div class="screenshot-bar">
+              <div class="screenshot-dot screenshot-dot-r"></div>
+              <div class="screenshot-dot screenshot-dot-y"></div>
+              <div class="screenshot-dot screenshot-dot-g"></div>
+              <div class="screenshot-url">🔗 Copy Link button</div>
+            </div>
+            <div class="screenshot-body" style="min-height: 100px;">
+              <img src="screenshots/copy-link.png" />
+            </div>
+          </div>
+
+          <div class="steps">
+            <div class="step">
+              <div class="step-num">1</div>
+              <div class="step-body">
+                <div class="step-title">Click "Copy Link"</div>
+                <div class="step-desc">The current page URL (which includes the two machine IDs) is copied to your
+                  clipboard. The button briefly shows <strong>✓ Copied!</strong></div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div class="step-body">
+                <div class="step-title">Paste and share</div>
+                <div class="step-desc">Anyone who opens the link will see the same two machines pre-selected in the
+                  Compare tab.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="callout callout-info" style="margin-top:12px;">
+            <div class="callout-icon">ℹ</div>
+            <div class="callout-body" style="font-size:8.5pt;">The URL format looks like:<br /><code
+                style="font-size:7.5pt;">…#category=four-wheel-tractor&amp;compare=kubota-l3408,ford-6610</code></div>
+          </div>
+        </div>
+
+        <div>
+          <h3>Export to CSV</h3>
+          <!-- Screenshot placeholder -->
+          <div class="screenshot mb-sm">
+            <div class="screenshot-bar">
+              <div class="screenshot-dot screenshot-dot-r"></div>
+              <div class="screenshot-dot screenshot-dot-y"></div>
+              <div class="screenshot-dot screenshot-dot-g"></div>
+              <div class="screenshot-url">📥 Export CSV button</div>
+            </div>
+            <div class="screenshot-body" style="min-height: 100px;">
+              <img src="screenshots/export-csv.png" />
+            </div>
+          </div>
+
+          <div class="steps">
+            <div class="step">
+              <div class="step-num">1</div>
+              <div class="step-body">
+                <div class="step-title">Select two machines</div>
+                <div class="step-desc">Both Machine A and Machine B dropdowns must have a value selected.</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div class="step-body">
+                <div class="step-title">Click "Export CSV"</div>
+                <div class="step-desc">A <code>.csv</code> file downloads automatically, named
+                  <code>compare-[id-a]-vs-[id-b].csv</code>.
+                </div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">3</div>
+              <div class="step-body">
+                <div class="step-title">Open in Excel or Google Sheets</div>
+                <div class="step-desc">The file has three columns: Specification, Machine A name, Machine B name — one
+                  row per spec.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+    <div class="page-footer">
+      <div class="footer-logo"><span class="footer-dot"></span> AMTEC User Manual</div>
+      <div>Agricultural Machinery Data · v1.0</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+     SLIDE 9 — PRINTING A BULLETIN
+══════════════════════════════════════════════════════════ -->
+  <div class="slide page-break">
+    <div class="slide-inner" style="padding-bottom: 60px;">
+
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-section-tag">// 05 — Print Bulletin</div>
+          <div class="page-title">Printing a Machine Bulletin</div>
+        </div>
+        <div class="page-num">Page 9</div>
+      </div>
+
+      <p>Each machine card has a <strong>Print</strong> button that generates a formatted one-page specification
+        bulletin complete with AMTEC and UPLB logos, machine photo, and the full spec table — ready to print or save as
+        PDF.</p>
+
+      <!-- Screenshot placeholder -->
+      <div class="screenshot mb-md mt-sm">
+        <div class="screenshot-bar">
+          <div class="screenshot-dot screenshot-dot-r"></div>
+          <div class="screenshot-dot screenshot-dot-y"></div>
+          <div class="screenshot-dot screenshot-dot-g"></div>
+          <div class="screenshot-url">Print preview window</div>
+        </div>
+        <div class="screenshot-body" style="min-height: 230px;">
+          <img src="screenshots/print-bulletin.png" />
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div>
+          <h4>How to print</h4>
+          <div class="steps">
+            <div class="step">
+              <div class="step-num">1</div>
+              <div class="step-body">
+                <div class="step-title">Find the machine card</div>
+                <div class="step-desc">Scroll to the machine or search for it in the Machine List.</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div class="step-body">
+                <div class="step-title">Click "🖨 Print"</div>
+                <div class="step-desc">A new browser tab opens and the system print dialog appears automatically.</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">3</div>
+              <div class="step-body">
+                <div class="step-title">Print or Save as PDF</div>
+                <div class="step-desc">In the print dialog, choose your printer or select "Save as PDF" to generate a
+                  digital copy.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h4>Bulletin layout</h4>
+          <ul>
+            <li><strong>Header row</strong> — UPLB logo left, AMTEC logo right, institution name center.</li>
+            <li><strong>Machine identity</strong> — Brand (amber), Model (large), Category below.</li>
+            <li><strong>Photo</strong> — shown on the left if a <code>photo_url</code> is set in the sheet.</li>
+            <li><strong>Spec table</strong> — all specifications with section banners.</li>
+          </ul>
+
+          <div class="callout callout-warn mt-sm">
+            <div class="callout-icon">⚠</div>
+            <div class="callout-body" style="font-size:8.5pt;"><strong>Pop-ups must be allowed</strong> on this site. If
+              the print window does not open, look for a blocked pop-up notification in the browser address bar and
+              click <em>Always allow</em>.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="page-footer">
+      <div class="footer-logo"><span class="footer-dot"></span> AMTEC User Manual</div>
+      <div>Agricultural Machinery Data · v1.0</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+     SLIDE 10 — REFRESH
+══════════════════════════════════════════════════════════ -->
+  <div class="slide page-break">
+    <div class="slide-inner" style="padding-bottom: 60px;">
+
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-section-tag">// 06 — Refreshing Data</div>
+          <div class="page-title">The ↺ Refresh Button</div>
+        </div>
+        <div class="page-num">Page 10</div>
+      </div>
+
+      <p>The system caches machine data in the browser for <strong>5 minutes</strong> to reduce load on Google Sheets.
+        If you have just edited the spreadsheet and want to see the changes immediately, use the Refresh button.</p>
+
+      <!-- Screenshot placeholder -->
+      <div class="screenshot mb-md mt-sm">
+        <div class="screenshot-bar">
+          <div class="screenshot-dot screenshot-dot-r"></div>
+          <div class="screenshot-dot screenshot-dot-y"></div>
+          <div class="screenshot-dot screenshot-dot-g"></div>
+          <div class="screenshot-url">Refresh button — top of category page</div>
+        </div>
+        <div class="screenshot-body" style="min-height: 120px;">
+          <img src="screenshots/refresh-btn.png" />
+        </div>
+      </div>
+
+      <div class="two-col mt-sm">
+        <div>
+          <h4>Steps</h4>
+          <div class="steps">
+            <div class="step">
+              <div class="step-num">1</div>
+              <div class="step-body">
+                <div class="step-title">Navigate into a category</div>
+                <div class="step-desc">The Refresh button only appears on the category view, not the home page.</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div class="step-body">
+                <div class="step-title">Click "↺ Refresh"</div>
+                <div class="step-desc">The button is disabled and shows <em>"↺ Refreshing…"</em> while the sheet is
+                  being fetched.</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">3</div>
+              <div class="step-body">
+                <div class="step-title">Machine list reloads</div>
+                <div class="step-desc">The list updates with the latest data from Google Sheets. The 5-minute cache
+                  resets.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h4>When to use Refresh</h4>
+          <ul>
+            <li>You just <strong>added a new machine</strong> to the sheet and want it to appear.</li>
+            <li>You <strong>updated a specification value</strong> and need to verify the change.</li>
+            <li>You <strong>added or changed a photo URL</strong> and want to see the new image.</li>
+            <li>You <strong>renamed a category</strong> in the Categories sheet.</li>
+          </ul>
+          <div class="callout callout-info mt-sm">
+            <div class="callout-icon">ℹ</div>
+            <div class="callout-body" style="font-size:8.5pt;">Google Sheets has its own <strong>publication
+                delay</strong> of a few minutes after you save. Even after clicking Refresh, allow 2–3 minutes for the
+              Google Sheets CSV to update if changes are very recent.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="page-footer">
+      <div class="footer-logo"><span class="footer-dot"></span> AMTEC User Manual</div>
+      <div>Agricultural Machinery Data · v1.0</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+     SLIDE 11 — ADMIN: GOOGLE SHEET
+══════════════════════════════════════════════════════════ -->
+  <div class="slide page-break">
+    <div class="slide-inner" style="padding-bottom: 60px;">
+
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-section-tag">// 07 — Admin Guide</div>
+          <div class="page-title">Managing the Google Sheet</div>
+        </div>
+        <div class="page-num">Page 11</div>
+      </div>
+
+      <p>All content is managed entirely inside Google Sheets. There are two types of sheet tabs: a
+        <strong>Categories</strong> index sheet and one <strong>machine data sheet per category</strong>.
+      </p>
+
+      <div class="two-col mt-sm">
+        <div>
+          <h3>Categories Sheet</h3>
+          <p style="font-size:9.5pt;">Tab name must be exactly <code>Categories</code>. Each row is one category.</p>
+          <table style="width:100%; border-collapse:collapse; font-size:8.5pt; margin-top:8px;">
+            <thead>
+              <tr style="background:var(--navy); color:white;">
+                <th style="padding:5px 8px; text-align:left; border:1px solid #334">Column</th>
+                <th style="padding:5px 8px; text-align:left; border:1px solid #334">Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="background:var(--bg);">
+                <td style="padding:5px 8px; border:1px solid var(--border); font-family:monospace;">id</td>
+                <td style="padding:5px 8px; border:1px solid var(--border);">URL slug (e.g.
+                  <code>four-wheel-tractor</code>)
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:5px 8px; border:1px solid var(--border); font-family:monospace;">label</td>
+                <td style="padding:5px 8px; border:1px solid var(--border);">Display name (e.g. Four-Wheel Tractor)</td>
+              </tr>
+              <tr style="background:var(--bg);">
+                <td style="padding:5px 8px; border:1px solid var(--border); font-family:monospace;">gid</td>
+                <td style="padding:5px 8px; border:1px solid var(--border);">Sheet tab GID (found in the sheet URL)</td>
+              </tr>
+              <tr>
+                <td style="padding:5px 8px; border:1px solid var(--border); font-family:monospace;">icon</td>
+                <td style="padding:5px 8px; border:1px solid var(--border);">Emoji icon (optional)</td>
+              </tr>
+              <tr style="background:var(--bg);">
+                <td style="padding:5px 8px; border:1px solid var(--border); font-family:monospace;">photo_url</td>
+                <td style="padding:5px 8px; border:1px solid var(--border);">Full URL to category card image</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <h3>Machine Data Sheet</h3>
+          <p style="font-size:9.5pt;">Each machine is a <strong>column</strong>. Each specification is a
+            <strong>row</strong>. Column A is the spec label; columns B, C, D … are the machines.
+          </p>
+          <div class="callout callout-tip" style="margin-top:8px;">
+            <div class="callout-icon">💡</div>
+            <div class="callout-body" style="font-size:8.5pt;"><strong>Section headers:</strong> Leave the machine
+              columns empty for a row to make it a section banner (e.g. "Engine Specifications").</div>
+          </div>
+          <div class="callout callout-tip" style="margin-top:8px;">
+            <div class="callout-icon">💡</div>
+            <div class="callout-body" style="font-size:8.5pt;"><strong>Photos:</strong> Add a row with label
+              <code>Photo URL</code> and paste the full image URL in each machine's column.
+            </div>
+          </div>
+          <div class="callout callout-warn" style="margin-top:8px;">
+            <div class="callout-icon">⚠</div>
+            <div class="callout-body" style="font-size:8.5pt;">The sheet must be <strong>published to the web</strong>
+              (File → Share → Publish to web) as CSV for the system to read it.</div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="rule" />
+
+      <h4>Adding a New Machine</h4>
+      <div class="steps" style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px;">
+        <div
+          style="background:var(--bg); border:1px solid var(--border); border-radius:7px; padding:12px 10px; text-align:center;">
+          <div style="font-size:18px; margin-bottom:6px;">1️⃣</div>
+          <div style="font-size:8.5pt; color:var(--navy); font-weight:600;">Open the sheet tab</div>
+          <div style="font-size:8pt; color:var(--slate); margin-top:4px;">Go to the correct category tab in Google
+            Sheets.</div>
+        </div>
+        <div
+          style="background:var(--bg); border:1px solid var(--border); border-radius:7px; padding:12px 10px; text-align:center;">
+          <div style="font-size:18px; margin-bottom:6px;">2️⃣</div>
+          <div style="font-size:8.5pt; color:var(--navy); font-weight:600;">Add a new column</div>
+          <div style="font-size:8pt; color:var(--slate); margin-top:4px;">Insert a new column to the right of existing
+            machines.</div>
+        </div>
+        <div
+          style="background:var(--bg); border:1px solid var(--border); border-radius:7px; padding:12px 10px; text-align:center;">
+          <div style="font-size:18px; margin-bottom:6px;">3️⃣</div>
+          <div style="font-size:8.5pt; color:var(--navy); font-weight:600;">Fill in spec values</div>
+          <div style="font-size:8pt; color:var(--slate); margin-top:4px;">Enter Brand, Model, and all spec values in the
+            corresponding rows.</div>
+        </div>
+        <div
+          style="background:var(--bg); border:1px solid var(--border); border-radius:7px; padding:12px 10px; text-align:center;">
+          <div style="font-size:18px; margin-bottom:6px;">4️⃣</div>
+          <div style="font-size:8.5pt; color:var(--navy); font-weight:600;">Save &amp; Refresh</div>
+          <div style="font-size:8pt; color:var(--slate); margin-top:4px;">Wait 2–3 min, then click ↺ Refresh on the
+            website.</div>
+        </div>
+      </div>
+
+    </div>
+    <div class="page-footer">
+      <div class="footer-logo"><span class="footer-dot"></span> AMTEC User Manual</div>
+      <div>Agricultural Machinery Data · v1.0</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+     SLIDE 12 — TROUBLESHOOTING
+══════════════════════════════════════════════════════════ -->
+  <div class="slide">
+    <div class="slide-inner" style="padding-bottom: 60px;">
+
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-section-tag">// 08 — Troubleshooting</div>
+          <div class="page-title">Common Issues &amp; Fixes</div>
+        </div>
+        <div class="page-num">Page 12</div>
+      </div>
+
+      <table style="width:100%; border-collapse:collapse; font-size:9pt; margin-bottom:16px;">
+        <thead>
+          <tr style="background:var(--navy); color:white;">
+            <th style="padding:8px 12px; text-align:left; border:1px solid #334; width:35%;">Problem</th>
+            <th style="padding:8px 12px; text-align:left; border:1px solid #334; width:30%;">Likely Cause</th>
+            <th style="padding:8px 12px; text-align:left; border:1px solid #334;">Fix</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="background:var(--bg);">
+            <td style="padding:8px 12px; border:1px solid var(--border);">Category grid shows "No machine categories"
+            </td>
+            <td style="padding:8px 12px; border:1px solid var(--border);">Categories sheet not published or tab name
+              wrong</td>
+            <td style="padding:8px 12px; border:1px solid var(--border);">Verify the tab is named exactly
+              <code>Categories</code> and the sheet is published as CSV.
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:8px 12px; border:1px solid var(--border);">"No machine data found for this category"</td>
+            <td style="padding:8px 12px; border:1px solid var(--border);">Wrong GID in the Categories sheet, or machine
+              tab is empty</td>
+            <td style="padding:8px 12px; border:1px solid var(--border);">Copy the GID from the sheet URL and paste it
+              into the <code>gid</code> column. Confirm the tab has data rows.</td>
+          </tr>
+          <tr style="background:var(--bg);">
+            <td style="padding:8px 12px; border:1px solid var(--border);">Machine photos not showing</td>
+            <td style="padding:8px 12px; border:1px solid var(--border);">URL is not a direct image link, or image is
+              not publicly accessible</td>
+            <td style="padding:8px 12px; border:1px solid var(--border);">Use a full <code>https://</code> URL that ends
+              in an image extension. Upload to WordPress Media Library for reliable URLs.</td>
+          </tr>
+          <tr>
+            <td style="padding:8px 12px; border:1px solid var(--border);">Print button does not open a window</td>
+            <td style="padding:8px 12px; border:1px solid var(--border);">Browser is blocking pop-ups</td>
+            <td style="padding:8px 12px; border:1px solid var(--border);">Click the pop-up blocked icon in the address
+              bar → "Always allow pop-ups from this site".</td>
+          </tr>
+          <tr style="background:var(--bg);">
+            <td style="padding:8px 12px; border:1px solid var(--border);">Sheet edits not appearing after Refresh</td>
+            <td style="padding:8px 12px; border:1px solid var(--border);">Google Sheets publication has a delay</td>
+            <td style="padding:8px 12px; border:1px solid var(--border);">Wait 2–3 minutes after saving, then click
+              Refresh again.</td>
+          </tr>
+          <tr>
+            <td style="padding:8px 12px; border:1px solid var(--border);">Compare table shows "N/A" for one machine</td>
+            <td style="padding:8px 12px; border:1px solid var(--border);">Machines have different numbers of spec rows
+            </td>
+            <td style="padding:8px 12px; border:1px solid var(--border);">Ensure all machine columns in the sheet have
+              the same number of rows as the first column.</td>
+          </tr>
+          <tr style="background:var(--bg);">
+            <td style="padding:8px 12px; border:1px solid var(--border);">Spec section headers not appearing</td>
+            <td style="padding:8px 12px; border:1px solid var(--border);">Section rows have data in machine columns</td>
+            <td style="padding:8px 12px; border:1px solid var(--border);">A row becomes a section header only if ALL
+              machine columns in that row are empty. Clear any accidental values.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-success">
+        <div class="callout-icon">✓</div>
+        <div class="callout-body">
+          <strong>Need more help?</strong> Contact the AMTEC web team or refer to the plugin's <code>README.md</code>
+          file for technical details about the WordPress installation, CSP configuration, and script module loading.
+        </div>
+      </div>
+
+      <hr class="rule" />
+
+      <div style="text-align:center; padding: 20px 0 10px;">
+        <div
+          style="font-family:'Playfair Display',serif; font-size:14pt; color:var(--navy); font-weight:700; margin-bottom:6px;">
+          Agricultural Machinery Testing and Evaluation Center</div>
+        <div style="font-size:9pt; color:var(--slate);">University of the Philippines Los Baños · College of Engineering
+          and Agro-Industrial Technology</div>
+        <div
+          style="margin-top:12px; display:inline-block; background:var(--gold-light); border-radius:6px; padding:6px 20px;">
+          <span style="font-family:'JetBrains Mono',monospace; font-size:8pt; color:#92400e;">amtec.uplb.edu.ph</span>
+        </div>
+      </div>
+
+    </div>
+    <div class="page-footer">
+      <div class="footer-logo"><span class="footer-dot"></span> AMTEC User Manual</div>
+      <div>Agricultural Machinery Data · v1.0</div>
+    </div>
+  </div>
+
+</body>
+
+</html>
