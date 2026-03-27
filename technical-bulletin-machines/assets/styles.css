@@ -181,6 +181,12 @@ h1 {
   animation: cardReveal 0.4s ease forwards;
 }
 
+/* A1: ensure focused cards are always visible even during animation delay */
+.category-card:focus-visible {
+  opacity: 1 !important;
+  animation-delay: 0s !important;
+}
+
 @keyframes cardReveal {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -402,6 +408,10 @@ select:focus {
 .machine-card:hover {
   border-color: #c8c8c8;
   box-shadow: var(--shadow-md);
+}
+
+.machine-card[hidden] {
+  display: none !important;
 }
 
 .machine-content {
@@ -654,6 +664,14 @@ select:focus {
 .is-different td { background: var(--danger-light); }
 .is-same td { background: var(--surface); }
 
+/* A3: Visual distinction for N/A cells */
+.compare-table td.is-na,
+.machine-spec-table td.is-na {
+  color: var(--text-muted);
+  font-style: italic;
+  opacity: 0.7;
+}
+
 /* Section header rows inside the compare table */
 .compare-section-header {
   background: var(--accent-light);
@@ -728,7 +746,7 @@ select:focus {
   opacity: 0;
   pointer-events: none;
   transform: translateY(10px);
-  display: grid; /* override hidden=true's display:none to allow fading */
+  display: grid !important; /* B6: must use !important to override [hidden] */
 }
 
 /* ─── Responsive ─────────────────────────────────────────────────────────────── */
@@ -857,4 +875,73 @@ select:focus {
   letter-spacing: 0.03em;
   color: var(--placeholder-icon);
   opacity: 0.8;
+}
+
+/* ─── F5: Refresh Button ─────────────────────────────────────────────────────── */
+
+.refresh-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 1.5rem;
+  margin-left: 0.5rem;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 0.38rem 0.75rem;
+  cursor: pointer;
+  transition: border-color 150ms, color 150ms;
+}
+
+.refresh-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.refresh-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ─── F1/F3: Compare Action Buttons ──────────────────────────────────────────── */
+
+.compare-action-btns {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  grid-column: 1 / -1;
+}
+
+.action-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-family: inherit;
+  padding: 0.32rem 0.7rem;
+  cursor: pointer;
+  transition: background 130ms, border-color 130ms;
+  display: inline-flex;
+  align-items: center;
+}
+
+.action-btn:hover {
+  background: var(--accent-light);
+  border-color: var(--accent);
+}
+
+
+
+/* ─── F4: Search Highlight ───────────────────────────────────────────────────── */
+
+.search-highlight {
+  background: #fde68a;
+  color: #92400e;
+  border-radius: 2px;
+  padding: 0 2px;
 }

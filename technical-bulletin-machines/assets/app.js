@@ -15,13 +15,18 @@ const FALLBACK_CATEGORIES = [
 ];
 
 // ─── Cache-busted URL builders ────────────────────────────────────────────────
+// P2: Use a 5-minute rounded timestamp so the browser can cache within that window
+const CACHE_TTL_MS = 5 * 60 * 1000;
+function cacheBustStamp() {
+  return Math.floor(Date.now() / CACHE_TTL_MS) * CACHE_TTL_MS;
+}
 
 function sheetUrl(gid) {
-  return `${SPREADSHEET_BASE}?gid=${gid}&single=true&output=csv&_=${Date.now()}`;
+  return `${SPREADSHEET_BASE}?gid=${gid}&single=true&output=csv&_=${cacheBustStamp()}`;
 }
 
 function namedSheetUrl(sheetName) {
-  return `${SPREADSHEET_BASE}?single=true&output=csv&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
+  return `${SPREADSHEET_BASE}?single=true&output=csv&sheet=${encodeURIComponent(sheetName)}&_=${cacheBustStamp()}`;
 }
 
 // ─── UI References ─────────────────────────────────────────────────────────────
@@ -64,6 +69,8 @@ let state = {
 };
 
 const categoryCache = new Map();
+const categoryCacheTimestamps = new Map();
+const CATEGORY_CACHE_TTL = 5 * 60 * 1000; // B5: 5-minute TTL for category cache
 
 // ─── Entry Point & Router ─────────────────────────────────────────────────────
 
@@ -274,7 +281,9 @@ function openCategory(category) {
 }
 
 async function loadCategory(category) {
-  if (categoryCache.has(category.gid)) {
+  // B5: check cache TTL before using cached data
+  const cachedAt = categoryCacheTimestamps.get(category.gid) || 0;
+  if (categoryCache.has(category.gid) && (Date.now() - cachedAt < CATEGORY_CACHE_TTL)) {
     setMachines(categoryCache.get(category.gid));
     restoreDeepLinkState();
     return;
@@ -285,6 +294,7 @@ async function loadCategory(category) {
     const sheetsData = await loadMachinesFromSheets(category.gid);
     if (sheetsData.length > 0) {
       categoryCache.set(category.gid, sheetsData);
+      categoryCacheTimestamps.set(category.gid, Date.now());
       setMachines(sheetsData);
       restoreDeepLinkState();
       return;
@@ -455,17 +465,22 @@ function mapColumnToMachine(matrix, colIndex, machineNumber, rowInfo) {
       specs[key] = raw[key];
     }
   });
-  // HP alias
+  // HP alias — B4: also push to specEntries so it appears in detail/compare tables
   const kwRaw = String(specs.rated_maximum_power_kw || "").trim();
   if (kwRaw) {
+    let hpValue = "";
     if (kwRaw.includes("-")) {
       const parts = kwRaw.split("-").map(p => parseFloat(p.trim()));
       if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
-        specs.engine_power_hp = `${(parts[0] * 1.34102).toFixed(1)} - ${(parts[1] * 1.34102).toFixed(1)}`;
+        hpValue = `${(parts[0] * 1.34102).toFixed(1)} - ${(parts[1] * 1.34102).toFixed(1)}`;
       }
     } else {
       const kwNum = parseFloat(kwRaw);
-      if (!isNaN(kwNum)) specs.engine_power_hp = (kwNum * 1.34102).toFixed(1);
+      if (!isNaN(kwNum)) hpValue = (kwNum * 1.34102).toFixed(1);
+    }
+    if (hpValue) {
+      specs.engine_power_hp = hpValue;
+      specEntries.push({ type: "spec", label: "Engine Power (HP)", key: "engine_power_hp", value: hpValue });
     }
   }
 
@@ -518,8 +533,10 @@ function updateCompareHash() {
 }
 
 function bindEvents() {
+  // B3: clear hash cleanly instead of leaving #home in URL
   ui.backBtn.addEventListener("click", () => {
-    window.location.hash = "#home";
+    history.pushState("", "", location.pathname + location.search);
+    showHomeView();
   });
 
   ui.searchInput.addEventListener("input", debounce(applyFilters, 200));
@@ -536,6 +553,24 @@ function bindEvents() {
   
   // #16: debounce the checkbox to avoid layout thrash on rapid toggling
   ui.differencesOnly.addEventListener("change", debounce(renderCompareTable, 80));
+
+  // F1: Copy shareable compare URL
+  const copyLinkBtn = document.getElementById("copyLinkBtn");
+  if (copyLinkBtn) {
+    copyLinkBtn.addEventListener("click", copyCompareLink);
+  }
+
+  // F3: Export compare table to CSV
+  const exportCsvBtn = document.getElementById("exportCsvBtn");
+  if (exportCsvBtn) {
+    exportCsvBtn.addEventListener("click", exportCompareCsv);
+  }
+
+  // F5: Manual data refresh
+  const refreshBtn = document.getElementById("refreshBtn");
+  if (refreshBtn) {
+    refreshBtn.addEventListener("click", refreshCurrentCategory);
+  }
   
   ui.tabButtons.forEach((button) => {
     button.addEventListener("click", () => {
@@ -573,6 +608,10 @@ function setMachines(data) {
     renderListError("Data must be an array of machines.");
     return;
   }
+
+  // P1: Reset built flag so cards get rebuilt for new data
+  ui.machineList.dataset.built = "";
+  ui.machineList.innerHTML = "";
 
   state.machines = data
     .filter((machine) => machine && machine.id && machine.name && machine.specs)
@@ -664,22 +703,56 @@ function applyFilters() {
 // ─── Machine List Rendering ───────────────────────────────────────────────────
 
 function renderMachineList() {
-  ui.machineList.innerHTML = "";
   ui.listCount.textContent = `${state.visibleMachines.length} item${
     state.visibleMachines.length === 1 ? "" : "s"
   }`;
 
-  if (state.visibleMachines.length === 0) {
+  // P1: Build cards once, then toggle visibility on filter instead of rebuilding DOM
+  const visibleIds = new Set(state.visibleMachines.map(m => m.id));
+
+  // If cards are already built, just toggle visibility
+  if (ui.machineList.children.length > 0 && ui.machineList.dataset.built === "true") {
+    let anyVisible = false;
+    Array.from(ui.machineList.children).forEach(el => {
+      if (el.classList.contains("empty-state")) { el.remove(); return; }
+      const id = el.dataset.machineId;
+      const show = id && visibleIds.has(id);
+      el.hidden = !show;
+      if (show) anyVisible = true;
+      // F4: clear previous search highlights
+      clearHighlights(el);
+    });
+    if (!anyVisible) {
+      // Remove old empty state if any, then add new one
+      const existing = ui.machineList.querySelector(".empty-state");
+      if (existing) existing.remove();
+      const p = document.createElement("p");
+      p.className = "empty-state";
+      p.textContent = "No machines match your filters.";
+      ui.machineList.appendChild(p);
+    }
+    return;
+  }
+
+  // First render: build all cards
+  ui.machineList.innerHTML = "";
+
+  if (state.machines.length === 0) {
     ui.machineList.innerHTML = `<p class="empty-state">No machines match your filters.</p>`;
     return;
   }
 
-  state.visibleMachines.forEach((machine) => {
+  state.machines.forEach((machine) => {
     const card = ui.cardTemplate.content.cloneNode(true);
+    const article = card.querySelector(".machine-card");
+    article.dataset.machineId = machine.id;
+    article.hidden = !visibleIds.has(machine.id);
+
     const photoPlaceholder = card.querySelector(".machine-photo-placeholder");
     const photo = card.querySelector(".machine-photo");
     const photoUrl = resolveMachinePhotoUrl(machine);
-    const machineTitle = [machine.brand, machine.model, machine.category]
+    // A5: omit category from title since user already navigated into that category
+    const machineTitle = [machine.brand, machine.model]
       .filter(Boolean)
       .join(" ");
 
@@ -694,10 +767,11 @@ function renderMachineList() {
       photo.src = photoUrl;
       photo.hidden = false;
       photoPlaceholder.hidden = true;
-      photo.onerror = () => {
+      // B1: use addEventListener instead of inline onerror (CSP-safe)
+      photo.addEventListener("error", () => {
         photo.hidden = true;
         photoPlaceholder.hidden = false;
-      };
+      });
     } else {
       photo.hidden = true;
       photoPlaceholder.hidden = false;
@@ -717,6 +791,11 @@ function renderMachineList() {
         : "Show detailed specifications";
       detailsToggle.classList.toggle("is-open", nextState);
       detailsWrap.hidden = !nextState;
+      // F4: highlight matching text when expanding
+      if (nextState) {
+        const keyword = ui.searchInput.value.trim().toLowerCase();
+        highlightText(detailsWrap, keyword);
+      }
     });
 
     if (printBtn) {
@@ -727,6 +806,7 @@ function renderMachineList() {
 
     ui.machineList.appendChild(card);
   });
+  ui.machineList.dataset.built = "true";
 }
 
 // specEntries: ordered [{type:'section',label} | {type:'spec',label,key,value}]
@@ -815,6 +895,31 @@ function resolveMachinePhotoUrl(machine) {
   return url ? url.trim() : "";
 }
 
+// B2: CSP-safe compare photo setter — replaces inline onerror handlers
+function setComparePhoto(imgEl, placeholderEl, url, altText) {
+  // Remove any previous error listener by cloning the node
+  const newImg = imgEl.cloneNode(true);
+  imgEl.parentNode.replaceChild(newImg, imgEl);
+  // Update our ui references
+  if (imgEl === ui.machineAPhoto) ui.machineAPhoto = newImg;
+  else if (imgEl === ui.machineBPhoto) ui.machineBPhoto = newImg;
+
+  if (url) {
+    newImg.src = url;
+    newImg.alt = altText;
+    newImg.hidden = false;
+    placeholderEl.hidden = true;
+    newImg.addEventListener("error", () => {
+      newImg.hidden = true;
+      placeholderEl.hidden = false;
+    });
+  } else {
+    newImg.hidden = true;
+    newImg.removeAttribute("src");
+    placeholderEl.hidden = false;
+  }
+}
+
 // ─── Compare Table ─────────────────────────────────────────────────────────────
 
 function renderCompareTable() {
@@ -842,37 +947,14 @@ function renderCompareTable() {
   ui.machineAImageHeading.textContent = machineA.name;
   ui.machineBImageHeading.textContent = machineB.name;
 
+  // B2: use addEventListener instead of inline onerror (CSP-safe)
   // Machine A photo
   const urlA = resolveMachinePhotoUrl(machineA);
-  if (urlA) {
-    ui.machineAPhoto.src = urlA;
-    ui.machineAPhoto.alt = machineA.name;
-    ui.machineAPhoto.hidden = false;
-    ui.machineAPhotoPlaceholder.hidden = true;
-    ui.machineAPhoto.onerror = () => {
-      ui.machineAPhoto.hidden = true;
-      ui.machineAPhotoPlaceholder.hidden = false;
-    };
-  } else {
-    ui.machineAPhoto.hidden = true;
-    ui.machineAPhotoPlaceholder.hidden = false;
-  }
+  setComparePhoto(ui.machineAPhoto, ui.machineAPhotoPlaceholder, urlA, machineA.name);
 
   // Machine B photo
   const urlB = resolveMachinePhotoUrl(machineB);
-  if (urlB) {
-    ui.machineBPhoto.src = urlB;
-    ui.machineBPhoto.alt = machineB.name;
-    ui.machineBPhoto.hidden = false;
-    ui.machineBPhotoPlaceholder.hidden = true;
-    ui.machineBPhoto.onerror = () => {
-      ui.machineBPhoto.hidden = true;
-      ui.machineBPhotoPlaceholder.hidden = false;
-    };
-  } else {
-    ui.machineBPhoto.hidden = true;
-    ui.machineBPhotoPlaceholder.hidden = false;
-  }
+  setComparePhoto(ui.machineBPhoto, ui.machineBPhotoPlaceholder, urlB, machineB.name);
 
   // Use specEntries for position-aligned rendering (handles duplicate labels correctly)
   const entriesA = machineA.specEntries || null;
@@ -947,6 +1029,138 @@ function resetCompareDisplay() {
   ui.machineBPhoto.alt = "";
   ui.machineAPhotoPlaceholder.hidden = false;
   ui.machineBPhotoPlaceholder.hidden = false;
+}
+
+// ─── F1: Copy Shareable Compare Link ─────────────────────────────────────────────
+
+function copyCompareLink() {
+  const btn = document.getElementById("copyLinkBtn");
+  const url = window.location.href;
+  navigator.clipboard.writeText(url).then(() => {
+    const original = btn.innerHTML;
+    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:0.3rem;"><polyline points="20 6 9 17 4 12"/></svg> Copied!`;
+    setTimeout(() => { btn.innerHTML = original; }, 2000);
+  }).catch(() => {
+    // Fallback for older browsers
+    prompt("Copy this link:", url);
+  });
+}
+
+// ─── F3: Export Compare Table to CSV ────────────────────────────────────────────
+
+function exportCompareCsv() {
+  const machineA = state.machines.find(m => m.id === ui.machineA.value);
+  const machineB = state.machines.find(m => m.id === ui.machineB.value);
+  if (!machineA || !machineB) {
+    alert("Please select two machines to export.");
+    return;
+  }
+
+  const rows = [["Specification", machineA.name, machineB.name]];
+  const entriesA = machineA.specEntries || null;
+  const entriesB = machineB.specEntries || [];
+
+  if (entriesA) {
+    entriesA.forEach((entryA, i) => {
+      if (entryA.type === "section") {
+        rows.push([`--- ${entryA.label} ---`, "", ""]);
+      } else {
+        const entryB = entriesB[i];
+        rows.push([entryA.label, valueOrDash(entryA.value), entryB ? valueOrDash(entryB.value) : "N/A"]);
+      }
+    });
+  } else {
+    const fields = getFieldKeys(machineA.specs, machineB.specs);
+    fields.forEach(field => {
+      if (isPhotoKey(field)) return;
+      rows.push([humanizeKey(field), valueOrDash(machineA.specs[field]), valueOrDash(machineB.specs[field])]);
+    });
+  }
+
+  const csvContent = rows.map(row =>
+    row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(",")
+  ).join("\n");
+
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `compare-${machineA.id}-vs-${machineB.id}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ─── F5: Manual Data Refresh ──────────────────────────────────────────────────
+
+async function refreshCurrentCategory() {
+  const btn = document.getElementById("refreshBtn");
+  if (!state.currentCategoryId) return;
+  const category = state.categories.find(c => c.id === state.currentCategoryId);
+  if (!category) return;
+
+  // Clear cache for this category
+  categoryCache.delete(category.gid);
+  categoryCacheTimestamps.delete(category.gid);
+
+  // Visual feedback
+  btn.disabled = true;
+  btn.textContent = "↺ Refreshing...";
+
+  try {
+    await loadCategory(category);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "↺ Refresh";
+  }
+}
+
+// ─── F4: Search Highlighting ──────────────────────────────────────────────────
+
+function highlightText(element, keyword) {
+  if (!keyword) return;
+  // First clear any existing highlights
+  clearHighlights(element);
+  const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null);
+  const nodesToReplace = [];
+  while (walker.nextNode()) {
+    const node = walker.currentNode;
+    const lowerText = node.textContent.toLowerCase();
+    if (lowerText.includes(keyword)) {
+      nodesToReplace.push(node);
+    }
+  }
+  nodesToReplace.forEach(node => {
+    const text = node.textContent;
+    const regex = new RegExp(`(${escapeRegex(keyword)})`, "gi");
+    const frag = document.createDocumentFragment();
+    let lastIndex = 0;
+    text.replace(regex, (match, p1, offset) => {
+      frag.appendChild(document.createTextNode(text.slice(lastIndex, offset)));
+      const mark = document.createElement("mark");
+      mark.className = "search-highlight";
+      mark.textContent = match;
+      frag.appendChild(mark);
+      lastIndex = offset + match.length;
+    });
+    if (lastIndex < text.length) {
+      frag.appendChild(document.createTextNode(text.slice(lastIndex)));
+    }
+    node.parentNode.replaceChild(frag, node);
+  });
+}
+
+function clearHighlights(element) {
+  const marks = element.querySelectorAll("mark.search-highlight");
+  marks.forEach(mark => {
+    const text = document.createTextNode(mark.textContent);
+    mark.parentNode.replaceChild(text, mark);
+  });
+  // Merge adjacent text nodes after replacing marks
+  element.normalize();
+}
+
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 // ─── Utilities ────────────────────────────────────────────────────────────────
@@ -1088,7 +1302,7 @@ function printMachineBulletin(machine) {
     @page { margin: 0.75in; }
   </style>
 </head>
-<body onload="window.print(); window.setTimeout(function(){window.close();}, 500);">
+<body onload="window.print();" onafterprint="window.close();">
   <div class="header">
     <div class="header-logos">
       <img src="${escapeHtml(uplbLogoStr)}" class="logo uplb-logo" alt="UPLB Logo" onerror="this.style.display='none'"/>

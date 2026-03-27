@@ -33,6 +33,7 @@
       <div class="page">
 
         <button type="button" id="backBtn" class="back-btn">← All Categories</button>
+        <button type="button" id="refreshBtn" class="refresh-btn" aria-label="Refresh data" title="Refresh machine data">↺ Refresh</button>
 
         <header class="hero category-hero">
           <p class="eyebrow" id="categoryEyebrow">Machine Category</p>
@@ -56,19 +57,21 @@
         <div class="tab-nav" role="tablist" aria-label="Machine views">
           <button
             type="button" class="tab-btn is-active" role="tab"
+            id="tab-machineList"
             aria-selected="true" aria-controls="machineListPanel"
             data-target="machineListPanel">
             Machine List
           </button>
           <button
             type="button" class="tab-btn" role="tab"
+            id="tab-compare"
             aria-selected="false" aria-controls="comparePanel"
             data-target="comparePanel">
             Compare Machines
           </button>
         </div>
 
-        <section id="machineListPanel" class="panel tab-panel is-active" aria-label="Machine list">
+        <section id="machineListPanel" class="panel tab-panel is-active" role="tabpanel" tabindex="0" aria-labelledby="tab-machineList" aria-label="Machine list">
           <div class="section-head">
             <h2>Machines</h2>
             <p id="listCount">0 items</p>
@@ -76,7 +79,7 @@
           <div id="machineList" class="machine-list"></div>
         </section>
 
-        <section id="comparePanel" class="panel tab-panel" aria-label="Compare machines">
+        <section id="comparePanel" class="panel tab-panel" role="tabpanel" tabindex="0" aria-labelledby="tab-compare" aria-label="Compare machines">
           <div class="section-head">
             <h2>Compare Two Machines</h2>
           </div>
@@ -110,6 +113,16 @@
               <input id="differencesOnly" type="checkbox" />
               Show differences only
             </label>
+            <div class="compare-action-btns">
+              <button type="button" id="copyLinkBtn" class="action-btn" aria-label="Copy shareable link">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:0.3rem;"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                Copy Link
+              </button>
+              <button type="button" id="exportCsvBtn" class="action-btn" aria-label="Export comparison to CSV">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:0.3rem;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Export CSV
+              </button>
+            </div>
           </div>
 
           <div class="table-wrap">
