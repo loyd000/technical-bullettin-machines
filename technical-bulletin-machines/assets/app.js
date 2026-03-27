@@ -392,8 +392,12 @@ function mapSpecMatrixToMachines(matrix) {
       }
     } else {
       const key = normalizeSpecKey(rawLabel);
-      if (key && !isPhotoKey(key)) {
-        rowInfo.push({ type: "spec", label: rawLabel, key, row });
+      if (key) {
+        if (isPhotoKey(key)) {
+          rowInfo.push({ type: "photo", label: rawLabel, key, row });
+        } else {
+          rowInfo.push({ type: "spec", label: rawLabel, key, row });
+        }
       }
     }
   });
@@ -417,7 +421,9 @@ function mapColumnToMachine(matrix, colIndex, machineNumber, rowInfo) {
     const rawValue = String(info.row[colIndex] || "").trim();
     // flat raw keeps last value for each key (used only for brand/model/ID extraction)
     if (rawValue) raw[info.key] = rawValue;
-    specEntries.push({ type: "spec", label: info.label, key: info.key, value: rawValue });
+    if (info.type === "spec") {
+      specEntries.push({ type: "spec", label: info.label, key: info.key, value: rawValue });
+    }
   });
 
   const brand = raw.brand || "Unknown";
@@ -440,6 +446,13 @@ function mapColumnToMachine(matrix, colIndex, machineNumber, rowInfo) {
   specEntries.forEach((entry) => {
     if (entry.type === "spec" && entry.value && !(entry.key in specs)) {
       specs[entry.key] = entry.value;
+    }
+  });
+  
+  // Include photo URLs in specs purely for logic (they are excluded from display automatically)
+  Object.keys(raw).forEach((key) => {
+    if (isPhotoKey(key) && raw[key] && !(key in specs)) {
+      specs[key] = raw[key];
     }
   });
   // HP alias
