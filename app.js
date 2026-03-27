@@ -1024,6 +1024,10 @@ function printMachineBulletin(machine) {
     return;
   }
 
+  const pluginUrl = window.TBM_PLUGIN?.pluginUrl || "";
+  const amtecLogoStr = pluginUrl ? `${pluginUrl}assets/amtec-logo.png` : './amtec-logo.png';
+  const uplbLogoStr  = pluginUrl ? `${pluginUrl}assets/uplb-logo.png` : './uplb-logo.png';
+
   const photoUrl = resolveMachinePhotoUrl(machine);
   let specRows = "";
 
@@ -1050,9 +1054,18 @@ function printMachineBulletin(machine) {
   <title>${escapeHtml(machine.name)} - Specification Bulletin</title>
   <style>
     body { font-family: "Segoe UI", system-ui, sans-serif; color: #1e293b; line-height: 1.5; margin: 0; padding: 2.5rem; }
-    .header { text-align: center; margin-bottom: 2rem; border-bottom: 3px solid #d97706; padding-bottom: 1.5rem; }
+    .header { margin-bottom: 2rem; border-bottom: 3px solid #d97706; padding-bottom: 1.5rem; }
+    .header-logos { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
+    .logo { height: 85px; width: auto; object-fit: contain; }
+    .uplb-logo { order: 1; }
+    .header-text { order: 2; flex: 1; text-align: center; }
+    .amtec-logo { order: 3; }
+    .header-title { font-size: 1.15rem; font-weight: 700; color: #1b365d; text-transform: uppercase; margin-bottom: 0.2rem; line-height: 1.3; }
+    .header-subtitle { font-size: 0.9rem; color: #475569; line-height: 1.3; }
+    
+    .machine-meta { text-align: center; }
+    .machine-meta h1 { margin: 0.4rem 0; font-size: 2.2rem; color: #1b365d; line-height: 1.1; }
     .brand { color: #d97706; font-weight: 700; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.08em; }
-    h1 { margin: 0.4rem 0; font-size: 2.2rem; color: #1b365d; line-height: 1.1; }
     .meta { color: #64748b; font-size: 0.95rem; font-weight: 500; }
     .content { display: flex; gap: 2.5rem; align-items: flex-start; }
     .photo { flex: 0 0 320px; }
@@ -1077,9 +1090,19 @@ function printMachineBulletin(machine) {
 </head>
 <body onload="window.print(); window.setTimeout(function(){window.close();}, 500);">
   <div class="header">
-    <div class="brand">${escapeHtml(machine.brand || 'Equipment')}</div>
-    <h1>${escapeHtml(machine.model || machine.name)}</h1>
-    <div class="meta">${escapeHtml(machine.category)}</div>
+    <div class="header-logos">
+      <img src="${escapeHtml(uplbLogoStr)}" class="logo uplb-logo" alt="UPLB Logo" onerror="this.style.display='none'"/>
+      <div class="header-text">
+        <div class="header-title">Agricultural Machinery Testing and Evaluation Center (AMTEC)</div>
+        <div class="header-subtitle">University of the Philippines Los Baños<br>College of Engineering and Agro-Industrial Technology</div>
+      </div>
+      <img src="${escapeHtml(amtecLogoStr)}" class="logo amtec-logo" alt="AMTEC Logo" onerror="this.style.display='none'"/>
+    </div>
+    <div class="machine-meta">
+      <div class="brand">${escapeHtml(machine.brand || 'Equipment')}</div>
+      <h1>${escapeHtml(machine.model || machine.name)}</h1>
+      <div class="meta">${escapeHtml(machine.category)}</div>
+    </div>
   </div>
   <div class="content">
     ${photoUrl ? `<div class="photo"><img src="${escapeHtml(photoUrl)}" alt="Photo"/></div>` : ''}
