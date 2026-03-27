@@ -122,21 +122,6 @@ function tbm_shortcode() {
 					<div class="section-head">
 						<h2>Compare Two Machines</h2>
 					</div>
-					<div class="compare-controls">
-						<div class="control-row">
-							<label for="machineA">Machine A</label>
-							<select id="machineA"></select>
-						</div>
-						<div class="control-row">
-							<label for="machineB">Machine B</label>
-							<select id="machineB"></select>
-						</div>
-						<label class="check">
-							<input id="differencesOnly" type="checkbox" />
-							Show differences only
-						</label>
-					</div>
-
 					<div class="compare-image-row">
 						<article class="compare-machine-card">
 							<h3 id="machineAImageHeading">Machine A</h3>
@@ -152,6 +137,21 @@ function tbm_shortcode() {
 								<img id="machineBPhoto" class="machine-photo" alt="" hidden />
 							</div>
 						</article>
+					</div>
+
+					<div class="compare-controls">
+						<div class="control-row">
+							<label for="machineA">Machine A</label>
+							<select id="machineA"></select>
+						</div>
+						<div class="control-row">
+							<label for="machineB">Machine B</label>
+							<select id="machineB"></select>
+						</div>
+						<label class="check">
+							<input id="differencesOnly" type="checkbox" />
+							Show differences only
+						</label>
 					</div>
 
 					<div class="table-wrap">
