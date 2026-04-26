@@ -859,14 +859,19 @@
       </div>
 
       <div style="margin-top: 28px;">
-        <div style="font-family: 'JetBrains Mono', monospace; font-size: 7pt; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px;">// Prepared By</div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px 24px; font-size: 9pt; color: rgba(255, 255, 255, 0.82);">
+        <div
+          style="font-family: 'JetBrains Mono', monospace; font-size: 7pt; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px;">
+          // Prepared By</div>
+        <div
+          style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px 24px; font-size: 9pt; color: rgba(255, 255, 255, 0.82);">
           <div>Aguilar, Rafael D.</div>
           <div>Presto, Sean Covi Q.</div>
           <div>De Guzman, John Lloyd M.</div>
           <div>Espiritu, Angeline</div>
         </div>
-        <div style="margin-top: 10px; font-family: 'JetBrains Mono', monospace; font-size: 8pt; font-weight: 600; color: rgba(255, 255, 255, 0.55); letter-spacing: 0.08em;">LSPU SCC</div>
+        <div
+          style="margin-top: 10px; font-family: 'JetBrains Mono', monospace; font-size: 8pt; font-weight: 600; color: rgba(255, 255, 255, 0.55); letter-spacing: 0.08em;">
+          LSPU SCC</div>
       </div>
 
       <div class="cover-footer">
@@ -1073,14 +1078,14 @@
             <div class="feature-desc">Deep-link directly to a category or a specific machine comparison. The URL updates
               as you navigate.</div>
           </div>
-          <div class="feature-card">
+          <!-- <div class="feature-card">
             <div class="feature-card-header">
               <div class="feature-icon">📥</div>
               <div class="feature-title">CSV Export</div>
             </div>
             <div class="feature-desc">Download any comparison as a spreadsheet-ready CSV file for offline analysis or
               reporting.</div>
-          </div>
+          </div> -->
         </div>
       </div>
 
@@ -1514,94 +1519,46 @@
         <div class="page-num">Page 8</div>
       </div>
 
-      <div class="two-col">
-
-        <div>
-          <h3>Copy Shareable Link</h3>
-          <!-- Screenshot placeholder -->
-          <div class="screenshot mb-sm">
-            <div class="screenshot-bar">
-              <div class="screenshot-dot screenshot-dot-r"></div>
-              <div class="screenshot-dot screenshot-dot-y"></div>
-              <div class="screenshot-dot screenshot-dot-g"></div>
-              <div class="screenshot-url">🔗 Copy Link button</div>
-            </div>
-            <div class="screenshot-body" style="min-height: 100px;">
-              <img src="screenshots/copy-link.png" />
-            </div>
+      <div>
+        <h3>Copy Shareable Link</h3>
+        <!-- Screenshot placeholder -->
+        <div class="screenshot mb-sm">
+          <div class="screenshot-bar">
+            <div class="screenshot-dot screenshot-dot-r"></div>
+            <div class="screenshot-dot screenshot-dot-y"></div>
+            <div class="screenshot-dot screenshot-dot-g"></div>
+            <div class="screenshot-url">🔗 Copy Link button</div>
           </div>
-
-          <div class="steps">
-            <div class="step">
-              <div class="step-num">1</div>
-              <div class="step-body">
-                <div class="step-title">Click "Copy Link"</div>
-                <div class="step-desc">The current page URL (which includes the two machine IDs) is copied to your
-                  clipboard. The button briefly shows <strong>✓ Copied!</strong></div>
-              </div>
-            </div>
-            <div class="step">
-              <div class="step-num">2</div>
-              <div class="step-body">
-                <div class="step-title">Paste and share</div>
-                <div class="step-desc">Anyone who opens the link will see the same two machines pre-selected in the
-                  Compare tab.</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="callout callout-info" style="margin-top:12px;">
-            <div class="callout-icon">ℹ</div>
-            <div class="callout-body" style="font-size:8.5pt;">The URL format looks like:<br /><code
-                style="font-size:7.5pt;">…#category=four-wheel-tractor&amp;compare=kubota-l3408,ford-6610</code></div>
+          <div class="screenshot-body" style="min-height: 100px;">
+            <img src="screenshots/copy-link.png" />
           </div>
         </div>
 
-        <div>
-          <h3>Export to CSV</h3>
-          <!-- Screenshot placeholder -->
-          <div class="screenshot mb-sm">
-            <div class="screenshot-bar">
-              <div class="screenshot-dot screenshot-dot-r"></div>
-              <div class="screenshot-dot screenshot-dot-y"></div>
-              <div class="screenshot-dot screenshot-dot-g"></div>
-              <div class="screenshot-url">📥 Export CSV button</div>
-            </div>
-            <div class="screenshot-body" style="min-height: 100px;">
-              <img src="screenshots/export-csv.png" />
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <div class="step-title">Click "Copy Link"</div>
+              <div class="step-desc">The current page URL (which includes the two machine IDs) is copied to your
+                clipboard. The button briefly shows <strong>✓ Copied!</strong></div>
             </div>
           </div>
-
-          <div class="steps">
-            <div class="step">
-              <div class="step-num">1</div>
-              <div class="step-body">
-                <div class="step-title">Select two machines</div>
-                <div class="step-desc">Both Machine A and Machine B dropdowns must have a value selected.</div>
-              </div>
-            </div>
-            <div class="step">
-              <div class="step-num">2</div>
-              <div class="step-body">
-                <div class="step-title">Click "Export CSV"</div>
-                <div class="step-desc">A <code>.csv</code> file downloads automatically, named
-                  <code>compare-[id-a]-vs-[id-b].csv</code>.
-                </div>
-              </div>
-            </div>
-            <div class="step">
-              <div class="step-num">3</div>
-              <div class="step-body">
-                <div class="step-title">Open in Excel or Google Sheets</div>
-                <div class="step-desc">The file has three columns: Specification, Machine A name, Machine B name — one
-                  row per spec.</div>
-              </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <div class="step-title">Paste and share</div>
+              <div class="step-desc">Anyone who opens the link will see the same two machines pre-selected in the
+                Compare tab.</div>
             </div>
           </div>
         </div>
 
+        <div class="callout callout-info" style="margin-top:12px;">
+          <div class="callout-icon">ℹ</div>
+          <div class="callout-body" style="font-size:8.5pt;">The URL format looks like:<br /><code
+              style="font-size:7.5pt;">…#category=four-wheel-tractor&amp;compare=kubota-l3408,ford-6610</code></div>
+        </div>
       </div>
-
     </div>
     <div class="page-footer">
       <div class="footer-logo"><span class="footer-dot"></span> AMTEC User Manual</div>

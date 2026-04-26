@@ -14,7 +14,6 @@ An interactive web catalogue for browsing, searching, and comparing technical sp
 - **Brand Filter** — Filter machines by manufacturer via dropdown.
 - **Side-by-Side Comparison** — Compare any two machines from the same category, with an option to show differences only.
 - **Shareable Links** — Deep-link directly to a category or a specific comparison via URL hash.
-- **CSV Export** — Download any comparison as a spreadsheet-ready `.csv` file.
 - **Print Bulletin** — One-click printable technical bulletin with AMTEC/UPLB header, machine photo, and full spec table.
 - **Live Data** — Data is fetched from a published Google Sheets document. No database required — edit the sheet to update the site.
 

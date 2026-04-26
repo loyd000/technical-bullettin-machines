@@ -38,6 +38,9 @@ const ui = {
   backBtn: document.getElementById("backBtn"),
   categoryEyebrow: document.getElementById("categoryEyebrow"),
   categoryTitle: document.getElementById("categoryTitle"),
+  categorySearch: document.getElementById("categorySearch"),
+  categorySearchClear: document.getElementById("categorySearchClear"),
+  categorySearchStatus: document.getElementById("categorySearchStatus"),
   searchInput: document.getElementById("searchInput"),
   brandFilter: document.getElementById("brandFilter"),
   machineList: document.getElementById("machineList"),
@@ -247,6 +250,12 @@ function showHomeView() {
   ui.categoryView.hidden = true;
   state.currentCategoryId = null;
   document.title = "Machine Specifications";
+
+  // Reset the home-page category search so it starts fresh every time
+  if (ui.categorySearch) {
+    ui.categorySearch.value = "";
+    filterCategoryGrid();
+  }
 }
 
 // ─── Category View ────────────────────────────────────────────────────────────
@@ -532,12 +541,55 @@ function updateCompareHash() {
   }
 }
 
+function filterCategoryGrid() {
+  const keyword = (ui.categorySearch.value || "").trim().toLowerCase();
+  const cards = ui.categoryGrid.querySelectorAll(".category-card");
+  let visibleCount = 0;
+
+  cards.forEach((card) => {
+    const label = (card.getAttribute("aria-label") || "").toLowerCase();
+    const matches = !keyword || label.includes(keyword);
+    card.hidden = !matches;
+    if (matches) visibleCount += 1;
+  });
+
+  // Toggle clear button visibility
+  if (ui.categorySearchClear) {
+    ui.categorySearchClear.hidden = !keyword;
+  }
+
+  // Update status text for screen readers & empty state
+  if (ui.categorySearchStatus) {
+    if (keyword && visibleCount === 0) {
+      ui.categorySearchStatus.textContent = `No categories match "${keyword}".`;
+      ui.categorySearchStatus.hidden = false;
+    } else if (keyword) {
+      ui.categorySearchStatus.textContent = `Showing ${visibleCount} of ${cards.length} categories.`;
+      ui.categorySearchStatus.hidden = false;
+    } else {
+      ui.categorySearchStatus.hidden = true;
+    }
+  }
+}
+
 function bindEvents() {
   // B3: clear hash cleanly instead of leaving #home in URL
   ui.backBtn.addEventListener("click", () => {
     history.pushState("", "", location.pathname + location.search);
     showHomeView();
   });
+
+  // Home-page category search
+  if (ui.categorySearch) {
+    ui.categorySearch.addEventListener("input", debounce(filterCategoryGrid, 150));
+  }
+  if (ui.categorySearchClear) {
+    ui.categorySearchClear.addEventListener("click", () => {
+      ui.categorySearch.value = "";
+      filterCategoryGrid();
+      ui.categorySearch.focus();
+    });
+  }
 
   ui.searchInput.addEventListener("input", debounce(applyFilters, 200));
   ui.brandFilter.addEventListener("change", applyFilters);
@@ -558,12 +610,6 @@ function bindEvents() {
   const copyLinkBtn = document.getElementById("copyLinkBtn");
   if (copyLinkBtn) {
     copyLinkBtn.addEventListener("click", copyCompareLink);
-  }
-
-  // F3: Export compare table to CSV
-  const exportCsvBtn = document.getElementById("exportCsvBtn");
-  if (exportCsvBtn) {
-    exportCsvBtn.addEventListener("click", exportCompareCsv);
   }
 
   // F5: Manual data refresh
@@ -1045,51 +1091,6 @@ function copyCompareLink() {
     prompt("Copy this link:", url);
   });
 }
-
-// ─── F3: Export Compare Table to CSV ────────────────────────────────────────────
-
-function exportCompareCsv() {
-  const machineA = state.machines.find(m => m.id === ui.machineA.value);
-  const machineB = state.machines.find(m => m.id === ui.machineB.value);
-  if (!machineA || !machineB) {
-    alert("Please select two machines to export.");
-    return;
-  }
-
-  const rows = [["Specification", machineA.name, machineB.name]];
-  const entriesA = machineA.specEntries || null;
-  const entriesB = machineB.specEntries || [];
-
-  if (entriesA) {
-    entriesA.forEach((entryA, i) => {
-      if (entryA.type === "section") {
-        rows.push([`--- ${entryA.label} ---`, "", ""]);
-      } else {
-        const entryB = entriesB[i];
-        rows.push([entryA.label, valueOrDash(entryA.value), entryB ? valueOrDash(entryB.value) : "N/A"]);
-      }
-    });
-  } else {
-    const fields = getFieldKeys(machineA.specs, machineB.specs);
-    fields.forEach(field => {
-      if (isPhotoKey(field)) return;
-      rows.push([humanizeKey(field), valueOrDash(machineA.specs[field]), valueOrDash(machineB.specs[field])]);
-    });
-  }
-
-  const csvContent = rows.map(row =>
-    row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(",")
-  ).join("\n");
-
-  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `compare-${machineA.id}-vs-${machineB.id}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
 // ─── F5: Manual Data Refresh ──────────────────────────────────────────────────
 
 async function refreshCurrentCategory() {
