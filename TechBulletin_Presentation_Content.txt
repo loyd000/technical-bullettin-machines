@@ -1,0 +1,89 @@
+# Technical Bulletin Machines - Presentation Content
+
+## Slide 1: Title Slide
+- Main Title: Technical Bulletin Machines
+- Subtitle: Digitalizing Agricultural Machinery Data for the Agricultural Machinery Testing and Evaluation Center (UPLB)
+- Footer: Culminating Activity Showcase | AMTEC-UPLB | 2026
+
+---
+
+## Slide 2: The Challenge (The "Why")
+- Headline: The Problem with Paper-Based Bulletins
+- Bullet Points:
+    - Scattered Information: Machinery specifications spread across printed documents and manual files.
+    - No Easy Comparison: Engineers had to manually compare specs across separate sheets or printouts.
+    - Outdated Data: Printed bulletins become stale the moment a new unit or update is recorded.
+    - Limited Reach: Physical bulletins are only accessible to those present in the office.
+
+---
+
+## Slide 3: Our Solution: Technical Bulletin Machines
+- Headline: A Live, Searchable Machinery Catalogue
+- Description: A responsive web application that centralizes all agricultural machinery specifications into one browsable, searchable, and printable digital platform — powered by live data from Google Sheets.
+- Value Proposition: "From filing cabinets to fingertips — instantly."
+
+---
+
+## Slide 4: Key Features (Part 1 - Discovery)
+- Headline: Find Any Machine in Seconds
+- Features:
+    - Smart Search: Filter machines by name, brand, or model across any category instantly.
+    - Brand Filtering: Narrow down results by manufacturer with a single dropdown selection.
+    - Category Browsing: Organized category grid with a built-in category search for fast navigation.
+
+---
+
+## Slide 5: Key Features (Part 2 - Comparison & Sharing)
+- Headline: Beyond Simple Listing
+- Features:
+    - Side-by-Side Comparison: Select any two machines and compare all specifications in a structured table.
+    - Show Differences Only: Toggle to highlight only the rows where the two machines differ.
+    - Print Technical Bulletin: Generate a clean, printable bulletin for any machine with one click.
+    - Shareable Links: Copy a direct URL that opens a pre-selected comparison — no login required.
+
+---
+
+## Slide 6: Technical Architecture (The "How")
+- Headline: Lightweight, Deployable Anywhere
+- Stack:
+    - Frontend: Vanilla JavaScript (ES Modules) — zero framework overhead, maximum compatibility
+    - Styling: Custom CSS with responsive layout and Google Fonts (Inter)
+    - Data Source: Google Sheets (published as CSV) — no backend server required
+    - Caching: Client-side 5-minute cache with timestamp-based cache busting
+    - Deployment: Standalone static site AND WordPress plugin via [tech_bulletin_machines] shortcode
+
+---
+
+## Slide 7: UI/UX Showcase
+- Headline: Designed for Clarity and Speed
+- Visual Elements:
+    - Home View: Category grid with live search — instantly filters as the user types.
+    - Machine List: Card-based layout with expandable detailed specifications per machine.
+    - Compare View: Clean side-by-side table with photo panels and a "differences only" toggle.
+    - Print Layout: Printer-optimized bulletin that strips UI chrome for a professional output.
+
+---
+
+## Slide 8: Impact & Results
+- Headline: Measurable Improvements
+- Stats:
+    - Instant Access: Specifications available to any staff member or engineer from any device, anywhere.
+    - Zero Infrastructure Cost: No server, no database — Google Sheets powers the entire data layer.
+    - Dual Deployment: One codebase serves both the standalone site and the AMTEC WordPress portal.
+    - Faster Decisions: Side-by-side comparison replaces hours of manual document cross-referencing.
+
+---
+
+## Slide 9: Future Scope
+- Headline: Growing with AMTEC's Needs
+- Goals:
+    - Admin Dashboard: A no-code interface for uploading and managing machine entries without touching Google Sheets directly.
+    - Image Gallery: Per-machine photo carousels for detailed visual inspection.
+    - Downloadable PDF Bulletins: Auto-generated PDFs with AMTEC branding for formal distribution.
+    - Expanded Categories: Coverage of all AMTEC-tested machinery types beyond the current five categories.
+
+---
+
+## Slide 10: Conclusion & Q&A
+- Closing Statement: "Technical Bulletin Machines: Bringing AMTEC's expertise from the test field to the digital world — accessible, accurate, and always up to date."
+- Call to Action: Thank you for your time! Any questions?
