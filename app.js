@@ -71,9 +71,14 @@ let state = {
   currentCategoryId: null,
 };
 
-const categoryCache = new Map();
-const categoryCacheTimestamps = new Map();
-const CATEGORY_CACHE_TTL = 5 * 60 * 1000; // B5: 5-minute TTL for category cache
+const categoryCache = new Map(); // Map<gid, { data, cachedAt }>
+const CATEGORY_CACHE_TTL = 5 * 60 * 1000;
+
+function fetchWithTimeout(url, ms = 10000) {
+  const ac = new AbortController();
+  const timer = setTimeout(() => ac.abort(), ms);
+  return fetch(url, { signal: ac.signal }).finally(() => clearTimeout(timer));
+}
 
 // ─── Entry Point & Router ─────────────────────────────────────────────────────
 
@@ -94,6 +99,8 @@ function route() {
       openCategory(category);
       return;
     }
+    // Unknown category ID in URL — clean the hash and fall through to home
+    history.replaceState("", "", location.pathname + location.search);
   }
   showHomeView();
 }
@@ -189,7 +196,7 @@ async function loadCategories() {
 }
 
 async function loadCategoriesFromSheet() {
-  const response = await fetch(namedSheetUrl(CATEGORY_INDEX_SHEET));
+  const response = await fetchWithTimeout(namedSheetUrl(CATEGORY_INDEX_SHEET));
   if (!response.ok) {
     throw new Error(`Failed to load category index: ${response.status}`);
   }
@@ -261,23 +268,9 @@ function showHomeView() {
 // ─── Category View ────────────────────────────────────────────────────────────
 
 function openCategory(category) {
-  if (state.currentCategoryId === category.id) {
-    ui.homeView.hidden = true;
-    ui.categoryView.hidden = false;
-    // Bug #3: reset any stale filters so the user sees fresh results
-    ui.searchInput.value = "";
-    ui.brandFilter.value = "";
-    applyFilters();
-    return;
-  }
+  const alreadyOpen = state.currentCategoryId === category.id;
 
   state.currentCategoryId = category.id;
-  state.machines = [];
-  state.visibleMachines = [];
-
-  ui.searchInput.value = "";
-  ui.brandFilter.innerHTML = `<option value="">All brands</option>`;
-  setActiveTab("machineListPanel");
 
   ui.categoryEyebrow.textContent = "Machine Category";
   ui.categoryTitle.textContent = category.label;
@@ -286,14 +279,27 @@ function openCategory(category) {
   ui.homeView.hidden = true;
   ui.categoryView.hidden = false;
 
+  if (alreadyOpen) {
+    ui.searchInput.value = "";
+    ui.brandFilter.value = "";
+    applyFilters();
+    return;
+  }
+
+  state.machines = [];
+  state.visibleMachines = [];
+
+  ui.searchInput.value = "";
+  ui.brandFilter.innerHTML = `<option value="">All brands</option>`;
+  setActiveTab("machineListPanel");
+
   loadCategory(category);
 }
 
 async function loadCategory(category) {
-  // B5: check cache TTL before using cached data
-  const cachedAt = categoryCacheTimestamps.get(category.gid) || 0;
-  if (categoryCache.has(category.gid) && (Date.now() - cachedAt < CATEGORY_CACHE_TTL)) {
-    setMachines(categoryCache.get(category.gid));
+  const cached = categoryCache.get(category.gid);
+  if (cached && Date.now() - cached.cachedAt < CATEGORY_CACHE_TTL) {
+    setMachines(cached.data);
     restoreDeepLinkState();
     return;
   }
@@ -302,8 +308,7 @@ async function loadCategory(category) {
   try {
     const sheetsData = await loadMachinesFromSheets(category.gid);
     if (sheetsData.length > 0) {
-      categoryCache.set(category.gid, sheetsData);
-      categoryCacheTimestamps.set(category.gid, Date.now());
+      categoryCache.set(category.gid, { data: sheetsData, cachedAt: Date.now() });
       setMachines(sheetsData);
       restoreDeepLinkState();
       return;
@@ -320,7 +325,9 @@ function restoreDeepLinkState() {
   const hash = window.location.hash;
   const compareMatch = hash.match(/&compare=([^&]+)/);
   if (compareMatch) {
-    const [idA, idB] = compareMatch[1].split(",");
+    const parts = compareMatch[1].split(",");
+    if (parts.length < 2) return;
+    const [idA, idB] = parts;
     if (idA) ui.machineA.value = idA;
     if (idB) ui.machineB.value = idB;
     setActiveTab("comparePanel");
@@ -331,7 +338,7 @@ function restoreDeepLinkState() {
 // ─── Data Loading ─────────────────────────────────────────────────────────────
 
 async function loadMachinesFromSheets(gid) {
-  const response = await fetch(sheetUrl(gid));
+  const response = await fetchWithTimeout(sheetUrl(gid));
   if (!response.ok) throw new Error(`Failed to load Google Sheets CSV: ${response.status}`);
 
   const csvText = await response.text();
@@ -572,6 +579,9 @@ function filterCategoryGrid() {
   }
 }
 
+const debouncedFilterCategories = debounce(filterCategoryGrid, 150);
+const debouncedApplyFilters = debounce(applyFilters, 200);
+
 function bindEvents() {
   // B3: clear hash cleanly instead of leaving #home in URL
   ui.backBtn.addEventListener("click", () => {
@@ -581,7 +591,7 @@ function bindEvents() {
 
   // Home-page category search
   if (ui.categorySearch) {
-    ui.categorySearch.addEventListener("input", debounce(filterCategoryGrid, 150));
+    ui.categorySearch.addEventListener("input", debouncedFilterCategories);
   }
   if (ui.categorySearchClear) {
     ui.categorySearchClear.addEventListener("click", () => {
@@ -591,7 +601,7 @@ function bindEvents() {
     });
   }
 
-  ui.searchInput.addEventListener("input", debounce(applyFilters, 200));
+  ui.searchInput.addEventListener("input", debouncedApplyFilters);
   ui.brandFilter.addEventListener("change", applyFilters);
 
   ui.machineA.addEventListener("change", () => {
@@ -603,8 +613,7 @@ function bindEvents() {
     renderCompareTable();
   });
   
-  // #16: debounce the checkbox to avoid layout thrash on rapid toggling
-  ui.differencesOnly.addEventListener("change", debounce(renderCompareTable, 80));
+  ui.differencesOnly.addEventListener("change", applyDiffHighlight);
 
   // F1: Copy shareable compare URL
   const copyLinkBtn = document.getElementById("copyLinkBtn");
@@ -941,27 +950,25 @@ function resolveMachinePhotoUrl(machine) {
   return url ? url.trim() : "";
 }
 
-// B2: CSP-safe compare photo setter — replaces inline onerror handlers
+// CSP-safe compare photo setter — uses AbortController to cancel stale error listeners
 function setComparePhoto(imgEl, placeholderEl, url, altText) {
-  // Remove any previous error listener by cloning the node
-  const newImg = imgEl.cloneNode(true);
-  imgEl.parentNode.replaceChild(newImg, imgEl);
-  // Update our ui references
-  if (imgEl === ui.machineAPhoto) ui.machineAPhoto = newImg;
-  else if (imgEl === ui.machineBPhoto) ui.machineBPhoto = newImg;
+  if (imgEl._photoAbort) imgEl._photoAbort.abort();
+  const ac = new AbortController();
+  imgEl._photoAbort = ac;
 
   if (url) {
-    newImg.src = url;
-    newImg.alt = altText;
-    newImg.hidden = false;
+    imgEl.src = url;
+    imgEl.alt = altText;
+    imgEl.hidden = false;
     placeholderEl.hidden = true;
-    newImg.addEventListener("error", () => {
-      newImg.hidden = true;
+    imgEl.addEventListener("error", () => {
+      imgEl.hidden = true;
       placeholderEl.hidden = false;
-    });
+    }, { signal: ac.signal, once: true });
   } else {
-    newImg.hidden = true;
-    newImg.removeAttribute("src");
+    imgEl.hidden = true;
+    imgEl.removeAttribute("src");
+    imgEl.alt = "";
     placeholderEl.hidden = false;
   }
 }
@@ -1009,7 +1016,7 @@ function renderCompareTable() {
 
   if (entriesA) {
     entriesA.forEach((entryA, i) => {
-      if (entryA.type === "section") {
+      if (entryA.type === "section" || entryA.type === "photo") {
         const tr = document.createElement("tr");
         const cell = document.createElement("td");
         cell.colSpan = 3;
@@ -1024,7 +1031,7 @@ function renderCompareTable() {
       const bValue = entryB ? valueOrDash(entryB.value) : "N/A";
       const isDifferent = normalizeForCompare(aValue) !== normalizeForCompare(bValue);
       const tr = document.createElement("tr");
-      tr.className = (ui.differencesOnly.checked && isDifferent) ? "is-different" : "is-same";
+      if (isDifferent) tr.classList.add("is-different");
       tr.innerHTML = `
         <td class="spec-name">${escapeHtml(entryA.label)}</td>
         <td>${escapeHtml(aValue)}</td>
@@ -1042,7 +1049,7 @@ function renderCompareTable() {
       const bValue = valueOrDash(machineB.specs[field]);
       const isDifferent = normalizeForCompare(aValue) !== normalizeForCompare(bValue);
       const tr = document.createElement("tr");
-      tr.className = (ui.differencesOnly.checked && isDifferent) ? "is-different" : "is-same";
+      if (isDifferent) tr.classList.add("is-different");
       tr.innerHTML = `
         <td class="spec-name">${escapeHtml(humanizeKey(field))}</td>
         <td>${escapeHtml(aValue)}</td>
@@ -1053,13 +1060,16 @@ function renderCompareTable() {
     });
   }
 
-  // #4: message depends on whether the filter is active or specs are simply absent
   if (rowsRendered === 0) {
-    const msg = ui.differencesOnly.checked
-      ? "These two machines have identical specifications."
-      : "No specifications available for these machines.";
-    ui.compareBody.innerHTML = `<tr><td colspan="3">${msg}</td></tr>`;
+    ui.compareBody.innerHTML = `<tr><td colspan="3">No specifications available for these machines.</td></tr>`;
   }
+
+  applyDiffHighlight();
+}
+
+function applyDiffHighlight() {
+  const table = document.getElementById("compareTable");
+  if (table) table.classList.toggle("highlight-diffs", ui.differencesOnly.checked);
 }
 
 function resetCompareDisplay() {
@@ -1099,9 +1109,7 @@ async function refreshCurrentCategory() {
   const category = state.categories.find(c => c.id === state.currentCategoryId);
   if (!category) return;
 
-  // Clear cache for this category
   categoryCache.delete(category.gid);
-  categoryCacheTimestamps.delete(category.gid);
 
   // Visual feedback
   btn.disabled = true;
@@ -1240,8 +1248,9 @@ function printMachineBulletin(machine) {
   }
 
   const pluginUrl = window.TBM_PLUGIN?.pluginUrl || "";
-  const amtecLogoStr = pluginUrl ? `${pluginUrl}assets/amtec-logo.png` : './amtec-logo.png';
-  const uplbLogoStr  = pluginUrl ? `${pluginUrl}assets/uplb-logo.png` : './uplb-logo.png';
+  const baseUrl = pluginUrl || (document.baseURI.endsWith("/") ? document.baseURI : document.baseURI.replace(/\/[^/]*$/, "/"));
+  const amtecLogoStr = `${baseUrl}${pluginUrl ? "assets/" : ""}amtec-logo.png`;
+  const uplbLogoStr  = `${baseUrl}${pluginUrl ? "assets/" : ""}uplb-logo.png`;
 
   const photoUrl = resolveMachinePhotoUrl(machine);
   let specRows = "";
@@ -1303,7 +1312,7 @@ function printMachineBulletin(machine) {
     @page { margin: 0.75in; }
   </style>
 </head>
-<body onload="window.print();" onafterprint="window.close();">
+<body>
   <div class="header">
     <div class="header-logos">
       <img src="${escapeHtml(uplbLogoStr)}" class="logo uplb-logo" alt="UPLB Logo" onerror="this.style.display='none'"/>
@@ -1334,6 +1343,10 @@ function printMachineBulletin(machine) {
 
   printWindow.document.write(html);
   printWindow.document.close();
+  printWindow.addEventListener("load", () => {
+    printWindow.print();
+    printWindow.addEventListener("afterprint", () => printWindow.close());
+  });
 }
 
 // ─── Bootstrap ────────────────────────────────────────────────────────────────

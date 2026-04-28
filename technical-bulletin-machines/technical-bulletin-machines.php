@@ -1,11 +1,13 @@
 <?php
 /**
- * Plugin Name: Technical Bulletin Machines
- * Plugin URI:  https://amtec.uplb.edu.ph
- * Description: Browse and compare agricultural machine specifications by category. Uses Google Sheets as a live data source.
- * Version:     1.0.1
- * Author:      AMTEC - UPLB
- * Text Domain: technical-bulletin-machines
+ * Plugin Name:       Technical Bulletin Machines
+ * Plugin URI:        https://amtec.uplb.edu.ph
+ * Description:       Browse and compare agricultural machine specifications by category. Uses Google Sheets as a live data source.
+ * Version:           1.0.1
+ * Requires at least: 6.0
+ * Requires PHP:      8.0
+ * Author:            AMTEC - UPLB
+ * Text Domain:       technical-bulletin-machines
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
@@ -13,20 +15,25 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 // ─── 1. Register & Enqueue Assets ─────────────────────────────────────────────
 
 function tbm_register_assets() {
+	$css_path = plugin_dir_path( __FILE__ ) . 'assets/styles.css';
+	$js_path  = plugin_dir_path( __FILE__ ) . 'assets/app.js';
+
 	wp_register_style(
 		'tbm-css',
 		plugin_dir_url( __FILE__ ) . 'assets/styles.css',
 		[],
-		'1.0.1'
+		file_exists( $css_path ) ? filemtime( $css_path ) : '1.0.1'
 	);
 
 	wp_register_script(
 		'tbm-js',
 		plugin_dir_url( __FILE__ ) . 'assets/app.js',
 		[],
-		'1.0.1',
+		file_exists( $js_path ) ? filemtime( $js_path ) : '1.0.1',
 		true
 	);
+
+	wp_script_add_data( 'tbm-js', 'type', 'module' );
 
 	wp_localize_script( 'tbm-js', 'TBM_PLUGIN', [
 		'pluginUrl' => plugin_dir_url( __FILE__ ),
@@ -49,6 +56,12 @@ add_filter( 'script_loader_tag', 'tbm_script_module_type', 10, 3 );
 // ─── 3. Shortcode: [tech_bulletin_machines] ───────────────────────────────────
 
 function tbm_shortcode() {
+	// Prevent duplicate rendering if shortcode is placed twice on the same page
+	if ( defined( 'TBM_SHORTCODE_RENDERED' ) ) {
+		return '<!-- [tech_bulletin_machines] can only be used once per page -->';
+	}
+	define( 'TBM_SHORTCODE_RENDERED', true );
+
 	wp_enqueue_style( 'tbm-css' );
 	wp_enqueue_script( 'tbm-js' );
 
@@ -162,7 +175,7 @@ function tbm_shortcode() {
 						</div>
 						<label class="check">
 							<input id="differencesOnly" type="checkbox" />
-							Show differences only
+							Highlight differences
 						</label>
 						<div class="compare-action-btns">
 							<button type="button" id="copyLinkBtn" class="action-btn" aria-label="Copy shareable link">
