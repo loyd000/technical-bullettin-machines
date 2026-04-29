@@ -118,7 +118,7 @@ function renderCategoryGrid() {
   state.categories.forEach((cat, index) => {
     // Only use photo_url from the sheet — no hardcoded fallback images
     const photoUrl = (cat.photo_url && /^https?:\/\//i.test(cat.photo_url.trim()))
-      ? cat.photo_url.trim()
+      ? resolveImageUrl(cat.photo_url.trim())
       : "";
 
     const card = document.createElement("button");
@@ -924,10 +924,17 @@ function appendSpecCells(row, label, value) {
   row.appendChild(valueCell);
 }
 
-// ─── Photo Resolver ───────────────────────────────────────────────────────────
-// Reads photo_url directly from machine specs — WordPress media URLs only.
-// Returns empty string if not set, triggering the placeholder instead.
+// ─── Drive URL Converter ──────────────────────────────────────────────────────
+function resolveImageUrl(url) {
+  if (!url) return url;
+  const fileMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (fileMatch) return `https://drive.google.com/thumbnail?id=${fileMatch[1]}&sz=w1000`;
+  const idMatch = url.match(/drive\.google\.com\/(?:open|uc)\?(?:.*&)?id=([a-zA-Z0-9_-]+)/);
+  if (idMatch) return `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w1000`;
+  return url;
+}
 
+// ─── Photo Resolver ───────────────────────────────────────────────────────────
 function resolveMachinePhotoUrl(machine) {
   const candidates = [
     machine.specs?.photo_url,
@@ -947,7 +954,7 @@ function resolveMachinePhotoUrl(machine) {
       /^https?:\/\//i.test(candidate.trim()),
   );
 
-  return url ? url.trim() : "";
+  return url ? resolveImageUrl(url.trim()) : "";
 }
 
 // CSP-safe compare photo setter — uses AbortController to cancel stale error listeners
