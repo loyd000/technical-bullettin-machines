@@ -1,7 +1,7 @@
 // ─── Category Configuration ───────────────────────────────────────────────────
 
 const SPREADSHEET_BASE =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vR-zTswjtNyquFlZ4lF0RFl0teWYbN3UuaFj0Qk21xQsrhLB41vcITFPvMqjGLL8Z4lVbHrX4K9FNVw/pub";
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ5bFEr-N6fkZl65iDdZ6WtYUCp2fZwYpHCBmsOsB3xE32H0VweCvK5LP2ROj5QBtoDHufRux9OG0fv/pub";
 
 const DEFAULT_CATEGORY_ICON = "[ ]";
 const CATEGORY_INDEX_SHEET = "Categories";
